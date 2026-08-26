@@ -1,0 +1,50 @@
+﻿variable_original,nombre_nuevo,fuente,descripcion,tipo_general,escala,rol_o_subtipo,observaciones
+ANO_EJE,anio_ejecucion,Seguimiento_PI,Año de ejecución del presupuesto.,Numérica,Intervalo,Discreta (Fecha),
+NIVEL_GOBIERNO,nivel_gobierno_cod,Seguimiento_PI,"Código que identifica el Nivel de Gobierno: E, R, M.",Categórica,Nominal,Código agrupador,
+NIVEL_GOBIERNO_NOMBRE,nivel_gobierno,Seguimiento_PI,"Descripción de Nivel de Gobierno: Nacional, Regionales, Locales.",Texto,Nominal,Texto descriptivo,
+SECTOR,sector_cod,Seguimiento_PI,Código de Sector al que pertenece la Entidad.,Categórica,Nominal,Código agrupador,
+SECTOR_NOMBRE,sector,Seguimiento_PI,Descripción de código del Sector al que pertenece la Entidad.,Texto,Nominal,Texto descriptivo,
+PLIEGO,pliego_cod,Seguimiento_PI,Código de Pliego al que pertenece la Entidad.,Categórica,Nominal,Código agrupador,
+PLIEGO_NOMBRE,pliego,Seguimiento_PI,Descripción de código del Pliego al que pertenece la Entidad.,Texto,Nominal,Texto descriptivo,
+SEC_EJEC,seccion_ejecutora_cod,Seguimiento_PI,Código que identifica a una Entidad.,Categórica,Nominal,Identificador de entidad,
+EJECUTORA,entidad_ejecutora_cod,Seguimiento_PI,Código institucional que identifica a una Entidad.,Categórica,Nominal,Identificador de entidad,
+EJECUTORA_NOMBRE,entidad_ejecutora,Seguimiento_PI,Nombre de la Entidad.,Texto,Nominal,Texto descriptivo,
+DEPARTAMENTO_EJECUTORA,departamento_ejecutora_cod,Seguimiento_PI,Código de departamento donde se ubica la Entidad.,Categórica,Nominal,Código geográfico,
+DEPARTAMENTO_EJECUTORA_NOMBRE,departamento_ejecutora,Seguimiento_PI,Nombre de departamento donde se ubica la Entidad.,Texto,Nominal,Texto descriptivo,
+PROVINCIA_EJECUTORA,provincia_ejecutora_cod,Seguimiento_PI,Código de provincia donde se ubica la Entidad.,Categórica,Nominal,Código geográfico,
+PROVINCIA_EJECUTORA_NOMBRE,provincia_ejecutora,Seguimiento_PI,Nombre de provincia donde se ubica la Entidad.,Texto,Nominal,Texto descriptivo,
+DISTRITO_EJECUTORA,distrito_ejecutora_cod,Seguimiento_PI,Código de distrito donde se ubica la Entidad.,Categórica,Nominal,Código geográfico,
+DISTRITO_EJECUTORA_NOMBRE,distrito_ejecutora,Seguimiento_PI,Nombre de distrito donde se ubica la Entidad.,Texto,Nominal,Texto descriptivo,
+TIPO_ACT_PROY,tipo_actividad_cod,Seguimiento_PI,Código que muestra si es proyecto o producto.,Categórica,Nominal,Código agrupador,
+TIPO_ACT_PROY_NOMBRE,tipo_actividad,Seguimiento_PI,Nombre que muestra si es proyecto o producto.,Texto,Nominal,Texto descriptivo,
+PRODUCTO_PROYECTO,codigo_proyecto,Seguimiento_PI,Código que identifica a un proyecto o producto.,Categórica,Nominal,Identificador (Llave primaria),Usar como llave para Join (CUI)
+PRODUCTO_PROYECTO_NOMBRE,nombre_proyecto,Seguimiento_PI,Descripción de un proyecto o producto.,Texto,Nominal,Texto descriptivo,
+FUNCION,funcion_cod,Seguimiento_PI,Código de Función.,Categórica,Nominal,Código agrupador,
+FUNCION_NOMBRE,funcion,Seguimiento_PI,Corresponde al nivel máximo de agregación de acciones.,Texto,Nominal,Texto descriptivo,
+DEPARTAMENTO_META,departamento_meta_cod,Seguimiento_PI,Código de Departamento de la meta.,Categórica,Nominal,Código geográfico,
+DEPARTAMENTO_META_NOMBRE,departamento_meta,Seguimiento_PI,Nombre del departamento de la meta.,Texto,Nominal,Texto descriptivo,
+FUENTE_FINANCIAMIENTO,fuente_financiamiento_cod,Seguimiento_PI,Código de la Fuente de Financiamiento.,Categórica,Nominal,Código agrupador,
+FUENTE_FINANCIAMIENTO_NOMBRE,fuente_financiamiento,Seguimiento_PI,Descripción de la Fuente de Financiamiento.,Texto,Nominal,Texto descriptivo,
+RUBRO,rubro_cod,Seguimiento_PI,Código del Rubro que puede utilizar la Entidad.,Categórica,Nominal,Código agrupador,
+RUBRO_NOMBRE,rubro,Seguimiento_PI,Descripción del Rubro.,Texto,Nominal,Texto descriptivo,
+COSTO_ACTUAL,costo_actual,Seguimiento_PI,Costo actual del proyecto.,Numérica,Razón,Continua,Posiblemente sucia (suele venir en 0)
+MONTO_EJECUCION_HASTA_HACE_2_ANOS,monto_ejecutado_acumulado_previo,Seguimiento_PI,Monto acumulado histórico (hasta hace 2 años).,Numérica,Razón,Continua,
+MONTO_EJECUCION_ANO_ANTERIOR,monto_ejecutado_anio_anterior,Seguimiento_PI,Monto de la ejecución del año anterior.,Numérica,Razón,Continua,
+MONTO_PIA,presupuesto_inicial,Seguimiento_PI,Presupuesto Institucional de Apertura.,Numérica,Razón,Continua,
+MONTO_PIM,presupuesto_modificado,Seguimiento_PI,Presupuesto Institucional Modificado.,Numérica,Razón,Continua,
+MONTO_DEVENGADO_ANO_EJE,monto_devengado_anio_actual,Seguimiento_PI,Monto ejecutado anual a la fecha.,Numérica,Razón,Continua,
+MONTO_EJECUCION_TOTAL,monto_ejecutado_total,Seguimiento_PI,Monto Total de la ejecución acumulada.,Numérica,Razón,Continua,Variable Target/KPI financiera
+CODIGO_UNICO,codigo_proyecto,PROCESO_SELECCION,Codigo unico de la inversión (CUI).,Categórica,Nominal,Identificador (Llave primaria),Usar como llave para Join (CUI)
+DES_PRODUCTO,descripcion_producto,PROCESO_SELECCION,Descripción de Producto,Texto,Nominal,Texto libre/descriptivo,
+DES_ACCION,descripcion_accion,PROCESO_SELECCION,Descripción de Acciones,Texto,Nominal,Texto libre/descriptivo,Genera múltiples filas por CUI
+DES_TIPO_COMPONENTE,tipo_componente,PROCESO_SELECCION,Descripcion de Tipo de Componente o Item,Categórica,Nominal,Atributo de clasificación,
+DES_UM_PRODU,unidad_medida_producto,PROCESO_SELECCION,Descripción de unidad de medida de producto,Categórica,Nominal,Atributo de clasificación,
+VAL_META_PRODU,meta_producto_valor,PROCESO_SELECCION,Valor meta de producto,Numérica,Razón,Continua,
+DES_UM_CAPAC,unidad_medida_capacidad,PROCESO_SELECCION,Descripción de unidad de medida de capacidad,Categórica,Nominal,Atributo de clasificación,
+VAL_META_CAPAC,meta_capacidad_valor,PROCESO_SELECCION,Valor meta de capacidad,Numérica,Razón,Continua,Pandas la detectó como texto (sucia)
+COSTO_INVERSION,costo_inversion,PROCESO_SELECCION,Costo de inversión real (según ET),Numérica,Razón,Continua,Sustituye al COSTO_ACTUAL del MEF
+PERIODO,periodo,PROCESO_SELECCION,Indica el periodo del gasto,Numérica,Intervalo,Fecha,
+VALORIZ_ACUM,valorizacion_acumulada,PROCESO_SELECCION,Monto acumulado de valorización física,Numérica,Razón,Continua,Alta cantidad de valores nulos
+AVANCE,avance_fisico_pct,PROCESO_SELECCION,Indica el porcentaje de avance fisico acumulado,Numérica,Razón,Continua,KPI Clave (alto porcentaje de nulos)
+DES_OBSERVACIONES,observaciones,PROCESO_SELECCION,Comentarios adicionales de la obra,Texto,Nominal,Texto libre,
+DES_ETAPA,etapa_proyecto,PROCESO_SELECCION,"Etapa de la ejecución (FYE, Expediente, Ejecución)",Categórica,Ordinal,Fase de ejecución,Posee un orden cronológico lógico

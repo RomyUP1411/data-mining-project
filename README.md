@@ -1,14 +1,14 @@
 # Data Hunters — Seguimiento Presupuestal y Avance Físico de Proyectos de Inversión Pública (Perú)
 
-Proyecto del curso **Data Mining** (Universidad del Pacífico, docente Soledad Espezúa) desarrollado por el equipo **Data Hunters**: Fernando Torres, Romy Tipacti y Arturo Alvarez.
+Proyecto del curso **Data Mining** (Universidad del Pacífico, docente Soledad Espezúa Llerena) desarrollado por el equipo **Data Hunters**: Fernando Torres, Romy Tipacti y Arturo Alvarez.
 
 ## Problema
 
-El **MEF** (Ministerio de Economía y Finanzas del Perú) sabe cuánto presupuesto tiene cada proyecto de inversión pública y cuánto se ha gastado (ejecución financiera), pero esa cifra por sí sola no dice si la obra realmente está avanzando. Por otro lado, el historial de procesos de selección sí registra el avance físico y contractual mes a mes, pero como una tabla completamente separada, sin relación explícita con lo financiero.
+El **MEF** (Ministerio de Economía y Finanzas del Perú) registra cuánto presupuesto tiene asignado cada proyecto de inversión pública y cuánto se ha devengado (ejecución financiera a través del SIAF), pero esa cifra por sí sola no dice si la obra realmente está avanzando en el terreno. Por otro lado, el historial de procesos de selección del **OSCE / SEACE** registra el avance físico y contractual mes a mes según las valorizaciones técnicas de los supervisores de obra, pero como una base de datos completamente separada, sin relación explícita con lo financiero.
 
-**Objetivo:** integrar ambas fuentes para poder responder preguntas como *"¿este proyecto ya gastó el 80% del presupuesto pero solo tiene 20% de avance físico?"*, y así identificar proyectos de inversión pública cuyo patrón de ejecución presupuestal se aleja del comportamiento típico (subejecución, sobreejecución inusual o posible paralización).
+**Objetivo del Proyecto:** integrar ambas fuentes para cuantificar la **Brecha Gasto - Avance** (*"¿este proyecto ya gastó el 80% o 100% del presupuesto pero solo tiene 20% de avance físico?"*), permitiendo identificar de forma temprana proyectos de inversión pública en riesgo de paralización, sobreejecución presupuestal o abandono de obra.
 
-**¿A quién le sirve?** A quien supervisa estos proyectos: un equipo de seguimiento de inversiones, una contraloría, o el propio equipo del proyecto, que necesita detectar a tiempo los casos donde se gasta presupuesto sin que la obra avance al mismo ritmo.
+**¿A quién le sirve?** A quienes supervisan las inversiones públicas: equipos de seguimiento del MEF, Órganos de Control Institucional (OCI), Unidades Ejecutoras y auditores de la **Contraloría General de la República del Perú**.
 
 ## Fuentes de datos
 
@@ -16,102 +16,126 @@ Ambas fuentes provienen del Portal de Datos Abiertos del MEF:
 
 | Fuente | Dataset | Contenido | Enlace |
 |---|---|---|---|
-| **Seguimiento_PI.csv** | Seguimiento de Proyectos de Inversión | Avance financiero y estado situacional de cada proyecto (presupuesto, monto ejecutado) por año, pliego y fuente de financiamiento. Proviene del Sistema de Seguimiento de Inversiones (SSI) y el Banco de Inversiones (Invierte.pe). | [datosabiertos.mef.gob.pe](https://fs.datosabiertos.mef.gob.pe/datastorefiles/2026-Seguimiento-PI.csv) |
-| **Proceso_Selección.csv** (OSCE) | Proceso de Selección de Inversiones | Historial mensual de convocatorias, licitaciones y avance físico/contractual de cada obra. Se nutre de la interoperabilidad MEF–SEACE/OSCE. | [datosabiertos.mef.gob.pe](https://fs.datosabiertos.mef.gob.pe/datastorefiles/Proceso_Selecccion_Diccionario.csv) |
+| **Seguimiento_PI.csv** | Seguimiento de Proyectos de Inversión | Asignación presupuestal y ejecución financiera (PIM, devengado, gasto acumulado) por año fiscal, pliego y fuente de financiamiento. Proviene del SIAF y Banco de Inversiones (Invierte.pe). | [datosabiertos.mef.gob.pe](https://fs.datosabiertos.mef.gob.pe/datastorefiles/2026-Seguimiento-PI.csv) |
+| **Proceso_Selección.csv** (OSCE) | Proceso de Selección de Inversiones | Historial mensual de convocatorias, licitaciones, etapas contractuales y avance físico porcentual acumulado de obra. Se nutre de la interoperabilidad MEF–SEACE/OSCE. | [datosabiertos.mef.gob.pe](https://fs.datosabiertos.mef.gob.pe/datastorefiles/Proceso_Selecccion_Diccionario.csv) |
 
-**Llave de integración:** `PRODUCTO_PROYECTO` (Seguimiento_PI) ↔ `CODIGO_UNICO` (Proceso_Selección) — renombrada a `codigo_proyecto` en ambas tablas para facilitar el cruce.
+**Llave de integración:** `codigo_proyecto`, resultado de homologar `PRODUCTO_PROYECTO` (Seguimiento_PI) y `CODIGO_UNICO` (Proceso_Selección).
 
-**Unidad de análisis:** cada fila representa un **proyecto de inversión pública** (obra o intervención específica), identificado por su Código Único de Inversión (CUI).
+**Unidad de análisis:** Cada fila representa un **Proyecto de Inversión Pública (obra o intervención específica)**, identificado por su Código Único de Inversión (**CUI**).
 
-## Estructura del repositorio
+---
 
-El proyecto está organizado por semanas de avance del curso, cada una construyendo sobre la anterior:
+## Estructura del Repositorio
+
+El proyecto está organizado de manera modular:
 
 ```
+├── Clases/                                   # Material teórico y laboratorios de clase (Dra. Soledad Espezúa)
+│   ├── (DM)Integracion_Unidad_Analisis_Clinica_sol.ipynb
+│   ├── (DM)Faltantes_Codificacion.ipynb
+│   ├── (DM)Continuacion_Transformacion.ipynb
+│   └── [4]Sesión5(DM).pdf, [5]Sesión8(DM).pdf, [6]Sesión9(DM).pdf, [6]Sesión10(DM).pdf
+│
 ├── Semana 1/
-│   ├── Integracion_Sem_1.ipynb              # Primera exploración e integración (laboratorio guiado)
-│   ├── diccionario_de_datos_entregable.xlsx # Diccionario de datos inicial
-│   └── requirements.txt
+│   ├── Integracion_Sem_1.ipynb              # Exploración inicial e integración preliminar
+│   └── diccionario_de_datos_entregable.xlsx
 │
 ├── Semana 2/
-│   └── (DM)limpieza_datos._Data_Hunters.ipynb  # Limpieza de datos e integración documentada
+│   └── (DM)limpieza_datos._Data_Hunters.ipynb  # Diagnóstico preliminar de calidad y limpieza documentada
 │
-└── Semana 3 - Entrega 1/                     # Primera entrega formal (Hito Formativo)
-    ├── Código_Fuente_Documentado/
-    │   ├── Entrega 1 - Data Hunters.ipynb        # Notebook final: EDA + integración + gráficos + hallazgos
-    │   ├── diccionario_de_datos.xlsx              # Diccionario de datos (49 columnas, ambas fuentes)
-    │   ├── diccionario_nombres_claros.csv         # Mapeo nombre original → nombre claro por variable
-    │   └── requirements.txt
-    ├── Entrega_1_Hito_Formativo_Data_Hunters.docx # Informe de la entrega
-    ├── Informe_Fuentes_de_Datos.docx / .pdf       # Ficha descriptiva de las fuentes de datos
+├── Semana 3 - Entrega 1/                     # Primera entrega formal (Hito Formativo 1)
+│   ├── Código_Fuente_Documentado/
+│   │   ├── Entrega 1 - Data Hunters.ipynb
+│   │   ├── diccionario_de_datos.xlsx
+│   │   └── diccionario_nombres_claros.csv
+│   ├── Entrega_1_Hito_Formativo_Data_Hunters.docx
+│   └── Informe_Fuentes_de_Datos.pdf
+│
+└── Entrega_2/                                # SEGUNDA ENTREGA FORMAL (HITO 2: 40% DEL PROYECTO)
+    ├── Entrega_2_Hito_Formativo_Data_Hunters.docx # Documento oficial formal (Word con formato académico UP)
+    ├── Entrega_2_Data_Hunters.ipynb         # Notebook documentado y reproducible (Estructura Diapositiva 4)
+    ├── base_integrada_proyectos.csv         # Base integrada a nivel de Proyecto CUI (52,480 filas × 19 col)
+    ├── matriz_analitica.csv                 # Primera Matriz Analítica para Minería (1,978 filas × 17 col)
+    ├── matriz_analitica_minmax.csv          # Matriz Analítica normalizada Min-Max [0, 1]
+    ├── matriz_analitica_zscore.csv          # Matriz Analítica estandarizada Z-Score (media 0, std 1)
+    ├── diccionario_matriz_analitica.csv     # Diccionario de variables de la matriz analítica
+    ├── graficos/                            # Visualizaciones del EDA en alta resolución (300 DPI)
+    │   ├── g1_avance_por_nivel_gobierno.png
+    │   ├── g2_dispersion_gasto_vs_avance.png
+    │   ├── g3_distribucion_brecha.png
+    │   └── g4_proyectos_adelantados_por_gobierno.png
+    ├── generar_datos_hito2.py               # Script automatizado de limpieza, agregación y escalamiento
+    └── generar_documento_word_hito2.py      # Script generador del reporte formal en Word
 ```
 
-> **Nota:** los archivos CSV crudos (`Seguimiento_PI.csv`, `PROCESO_SELECCION.csv`, ~1 GB y ~5.7 millones de filas) y las bases integradas generadas no se versionan en este repositorio por su tamaño; los notebooks asumen que se descargan localmente desde los enlaces de la sección anterior antes de ejecutarse.
+---
 
-## Qué hace cada notebook
+## Estructura del Código Fuente Documentado (Hito 2)
 
-### Semana 1 — Integración inicial (laboratorio guiado)
-Primer contacto con ambas fuentes: inspección de tamaño y tipos de datos, `describe()`, revisión de valores faltantes y de valores distintos por variable, identificación de la llave de integración (`PRODUCTO_PROYECTO` ↔ `CODIGO_UNICO`), un primer `merge` (left join) y un análisis de calidad de datos que documenta los problemas encontrados: datos faltantes, datos duplicados, formatos no uniformes/valores inválidos y datos redundantes.
+El notebook [`Entrega_2/Entrega_2_Data_Hunters.ipynb`](Entrega_2/Entrega_2_Data_Hunters.ipynb) desarrolla los componentes metodológicos de la preparación de datos para el Hito 2:
 
-### Semana 2 — Limpieza de datos documentada
-Profundiza el diagnóstico de calidad y aplica las correcciones:
-- **Faltantes disfrazados:** `SECTOR`/`PLIEGO` traían un espacio en blanco en vez de venir vacíos (faltante estructural de los gobiernos locales, que no tienen sector nacional asignado) — se convierten a `NaN` explícito.
-- **Duplicados:** se identifican y eliminan >100 mil filas exactamente duplicadas en `Proceso_Selección`, distinguiéndolas de la repetición legítima del historial mensual por proyecto.
-- **Categorías inconsistentes:** `DES_ETAPA` mezclaba mayúsculas/minúsculas, tildes y códigos entre paréntesis para la misma etapa del proyecto — se homologa a una sola convención.
-- **Tipos mal detectados:** `VAL_META_CAPAC` venía como texto por usar coma decimal; se convierte a numérico.
-- **Valores fuera de rango:** `AVANCE` con valores imposibles (órdenes de 10¹⁴, mezcla de escalas), `COSTO_INVERSION` negativo y `PERIODO` con fechas hasta 15 años en el futuro — se marcan como faltantes explícitos, sin imputarlos.
-- **Reducción a una fila por proyecto:** dado que `Proceso_Selección` trae hasta ~7,600 filas de historial por proyecto, se construye un snapshot con el período más reciente por `CODIGO_UNICO` antes de cruzar, evitando una explosión de filas en el merge (de lo contrario, el cruce directo genera ~13 millones de filas duplicadas).
-- **Integración final** (`left join` preservando la base MEF íntegra) y exportación de la base integrada (~697 mil filas × 52 columnas) junto con una tabla de decisiones de limpieza justificadas.
+1. **Carga e inspección de las fuentes:**
+   - Detección flexible de rutas de datos (funciona en entorno local, Google Colab o servidores).
+   - Inspección de dimensiones, tipos de datos y primeras filas.
+2. **Validación de claves, duplicados y granularidad:**
+   - Eliminación de **113,081 duplicados exactos** estructurales en `Proceso_Seleccion`.
+   - Diagnóstico y exclusión de **197 códigos presupuestales genéricos** (como `2001621` *"Estudios de Pre-Inversión"*, `2000634` *"Fortalecimiento"*, `2005230` *"Centros Educativos"*), compartidos por más de 5 entidades independientes y que acumulaban 479,015 filas sin CUI de obra física en `Proceso_Seleccion`.
+   - Agregación con `groupby("PRODUCTO_PROYECTO")` para reducir `Seguimiento_PI` a **52,480 proyectos reales individualizados** (**1 fila = 1 CUI**).
+3. **Diagnóstico y tratamiento de faltantes y valores atípicos:**
+   - Normalización de etapas de contratación a mayúsculas homogéneas.
+   - Depuración de avances fuera de rango $[0, 100]\%$, costos $\le 0$ y periodos futuros a `NaN`/`NaT`.
+   - Reducción de `Proceso_Selección` a **204,162 proyectos únicos** con su último avance válido.
+4. **Integración y comprobación de registros emparejados/no emparejados:**
+   - Evidencia de granularidad: se pasa de partidas anuales y reportes mensuales a 1 fila por CUI.
+   - Validación estricta `1 a 1` (`validate='one_to_one'`) mediante `left join`.
+   - **Auditoría de cruce:** **35,472 proyectos emparejados (`both`, 67.59%)** y 17,008 proyectos en `left_only` (obras por Administración Directa, compras menores a 8 UIT o formulación previa sin proceso de contratación externo).
+5. **EDA y visualizaciones relevantes:**
+   - 4 gráficos clave interpretados bajo la estructura pedagógica de la Universidad del Pacífico:
+     **Observación → Evidencia → Interpretación → Límite**.
+   - Hallazgo central: el **47.6% de proyectos de Gobiernos Locales** presenta alerta de gasto adelantado ($>15\%$), con una brecha mediana de $+11.9\%$ (frente a $+2.0\%$ del Gobierno Nacional).
+6. **Transformaciones aplicadas y construcción de la matriz analítica:**
+   - Variables derivadas con sentido de negocio: `pct_ejecucion_financiera`, `brecha_gasto_avance` (target de desfase), `tiempo_maduracion_anios`, `gasto_anual_promedio`, `flag_gasto_adelantado`.
+   - Discretización (`pd.cut`): `tamano_inversion` y `nivel_desfase`.
+   - Detección de outliers (IQR y Z-Score) justificando la conservación de megaproyectos y casos extremos.
+   - Codificación One-Hot de `nivel_gobierno` y escalamiento Min-Max $[0, 1]$ y Z-Score ($\mu=0, \sigma=1$).
+   - Matriz Analítica final de **1,978 proyectos CUI** en ejecución activa, conservando `codigo_proyecto` solo como índice de trazabilidad.
 
-### Semana 3 — Entrega 1 (Hito Formativo)
-Notebook final y documentado que retoma la limpieza de la Semana 2 y añade:
-1. **Diccionario de nombres claros:** renombrado de las 49 columnas originales (`ANO_EJE`, `SEC_EJEC`, etc.) a nombres legibles (`anio_ejecucion`, `seccion_ejecutora_cod`, etc.), preservando `codigo_proyecto` como llave común en ambas tablas.
-2. **Definición de la unidad de análisis** y de las variables clave para comparar, agrupar, asociar y detectar patrones atípicos.
-3. **Auditoría de la clave de integración** (`codigo_proyecto`): tabla de validación con conteo de valores únicos, repeticiones promedio/máximas y explicación de por qué cada fuente repite la llave por diseño (año/pliego/fuente de financiamiento en un caso, historial mensual en el otro).
-4. **Cruce con `how="outer"`** para auditar coincidencias, y luego **integración final con `how="left"`** preservando todas las filas de `Seguimiento_PI`.
-5. **Visualizaciones** (Plotly): resultado del cruce (barras), distribución del avance físico (histograma), avance físico por nivel de gobierno (boxplot) y monto ejecutado vs. avance físico (scatter, con color por nivel de gobierno y tamaño por costo de inversión).
-6. **Hallazgos principales**, entre ellos:
-   - El match entre fuentes es del **24.8% por fila** pero del **67.3% por proyecto** (35,542 de 52,800 proyectos), porque los proyectos sin cruce son, en promedio, los que más se repiten en `Seguimiento_PI`.
-   - El **91%** de los registros que sí cruzan tienen `avance_fisico_pct` vacío, porque este campo solo se registra cuando `etapa_proyecto = 'EJECUCION'`.
-   - El código `2001621` ("Estudios de Pre-Inversión") aparece **82,864 veces** (11.9% de las filas de `Seguimiento_PI`) y no es un proyecto real, sino un código presupuestal genérico que conviene tratar aparte.
-   - El avance físico promedio es similar entre niveles de gobierno (nacional 79.9%, local 79.2%, regional 76.8%) pese a que el gobierno nacional ejecuta ~10x más presupuesto por proyecto que el local — gastar más no garantiza más avance.
+---
 
-## Diccionario de datos
+## Instrucciones de Reproducibilidad
 
-El diccionario de datos completo (49 variables entre ambas fuentes: nombre original, nombre claro, fuente, descripción, tipo, escala de medición y observaciones de calidad) está disponible en:
-- [`Semana 3 - Entrega 1/Código_Fuente_Documentado/diccionario_de_datos.xlsx`](Semana%203%20-%20Entrega%201/C%C3%B3digo_Fuente_Documentado/diccionario_de_datos.xlsx)
-- [`Semana 3 - Entrega 1/Código_Fuente_Documentado/diccionario_nombres_claros.csv`](Semana%203%20-%20Entrega%201/C%C3%B3digo_Fuente_Documentado/diccionario_nombres_claros.csv)
-
-## Cómo ejecutar
-
-1. Descargar los CSV crudos desde los enlaces de la sección [Fuentes de datos](#fuentes-de-datos) y colocarlos en la misma carpeta que el notebook a ejecutar (`Seguimiento_PI.csv` y `PROCESO_SELECCION.csv`).
-2. Instalar las dependencias del notebook correspondiente:
-
+### Opción A — Ejecución del Notebook en Jupyter / Google Colab:
+1. Clonar el repositorio:
    ```bash
-   pip install -r "Semana 3 - Entrega 1/Código_Fuente_Documentado/requirements.txt"
+   git clone https://github.com/RomyUP1411/data-mining-project.git
+   ```
+2. Si los archivos CSV crudos (`Seguimiento_PI.csv` y `Proceso_Seleccion.csv`) se colocan en la misma carpeta del notebook o en la raíz del proyecto, el notebook los procesará automáticamente.
+3. Si no se descargan los archivos crudos (que pesan 1.5 GB), el notebook contiene salidas pre-renderizadas completas con todos los gráficos, tablas y estadísticas para su inspección inmediata.
+4. Abrir y ejecutar:
+   ```bash
+   jupyter notebook Entrega_2/Entrega_2_Data_Hunters.ipynb
    ```
 
-3. Abrir el notebook con Jupyter (`jupyter notebook`) o en Google Colab y ejecutar las celdas en orden.
+### Opción B — Ejecución de los Scripts en Terminal:
+1. Regenerar los datasets y gráficos:
+   ```bash
+   python Entrega_2/generar_datos_hito2.py
+   ```
+2. Regenerar el informe oficial en Word:
+   ```bash
+   python Entrega_2/generar_documento_word_hito2.py
+   ```
 
-### Dependencias principales
+---
 
-| Paquete | Uso |
-|---|---|
-| `pandas` | Carga, limpieza e integración de datos |
-| `numpy` | Manejo de valores faltantes y operaciones numéricas |
-| `plotly` | Visualizaciones interactivas (Semana 3) |
-| `matplotlib` | Visualizaciones estáticas (Semana 2) |
-| `openpyxl` | Lectura/escritura de archivos Excel (diccionario de datos) |
-| `nbformat`, `ipykernel` | Soporte de notebooks Jupyter |
+## Estado del Proyecto
 
-## Estado del proyecto
-
-- ✅ Semana 1: exploración e integración inicial
-- ✅ Semana 2: limpieza de datos documentada
-- ✅ Semana 3: Entrega 1 (Hito Formativo) — integración final, EDA y primeros hallazgos
+- [x] **Hito 1:** Planteamiento del problema, exploración inicial y viabilidad.
+- [x] **Hito 2:** Preparación de datos, corrección de granularidad (agregación 1:1 por CUI), exclusión de códigos genéricos, EDA formal y primera matriz analítica.
+- [ ] **Hito 3:** Modelado de Minería de Datos (Clustering K-Means / DBSCAN y Detección de Anomalías con Isolation Forest).
 
 ## Equipo
 
-**Data Hunters** — Fernando Torres, Romy Tipacti, Arturo Alvarez
-Curso: Data Mining — Universidad del Pacífico
-Docente: Soledad Espezúa (s.espezua@up.edu.pe)
+**Data Hunters** — Fernando Torres, Romy Tipacti, Arturo Alvarez  
+Curso: Data Mining — Universidad del Pacífico  
+Docente: Soledad Espezúa Llerena (s.espezua@up.edu.pe)

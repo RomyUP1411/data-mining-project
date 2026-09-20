@@ -72,23 +72,23 @@ El proyecto está organizado de manera modular:
 
 ## Estructura del Código Fuente Documentado (Hito 2)
 
-El notebook [`Entrega_2/Entrega_2_Data_Hunters.ipynb`](Entrega_2/Entrega_2_Data_Hunters.ipynb) desarrolla los componentes metodológicos de la preparación de datos para el Hito 2:
+El notebook [`Entrega_2/Entrega_2_Data_Hunters.ipynb`](Entrega_2/Entrega_2_Data_Hunters.ipynb) sigue al pie de la letra los 6 apartados solicitados en la **diapositiva 4** de la pauta del Hito 2:
 
 1. **Carga e inspección de las fuentes:**
-   - Detección flexible de rutas de datos (funciona en entorno local, Google Colab o servidores).
+   - Detección flexible de rutas de datos (funciona en entorno local, Google Colab o aula de clases).
    - Inspección de dimensiones, tipos de datos y primeras filas.
 2. **Validación de claves, duplicados y granularidad:**
-   - Eliminación de **113,081 duplicados exactos** estructurales en `Proceso_Seleccion`.
-   - Diagnóstico y exclusión de **197 códigos presupuestales genéricos** (como `2001621` *"Estudios de Pre-Inversión"*, `2000634` *"Fortalecimiento"*, `2005230` *"Centros Educativos"*), compartidos por más de 5 entidades independientes y que acumulaban 479,015 filas sin CUI de obra física en `Proceso_Seleccion`.
+   - Eliminación de **871,679 duplicados exactos** en SEACE.
+   - Diagnóstico y exclusión de **197 códigos presupuestales genéricos** (como `2001621` *"Estudios de Pre-Inversión"*, `2000634` *"Fortalecimiento"*, `2005230` *"Centros Educativos"*), compartidos por más de 5 entidades independientes y que acumulaban 479,015 filas sin CUI de obra física en SEACE.
    - Agregación con `groupby("PRODUCTO_PROYECTO")` para reducir `Seguimiento_PI` a **52,480 proyectos reales individualizados** (**1 fila = 1 CUI**).
 3. **Diagnóstico y tratamiento de faltantes y valores atípicos:**
    - Normalización de etapas de contratación a mayúsculas homogéneas.
    - Depuración de avances fuera de rango $[0, 100]\%$, costos $\le 0$ y periodos futuros a `NaN`/`NaT`.
    - Reducción de `Proceso_Selección` a **204,162 proyectos únicos** con su último avance válido.
-4. **Integración y comprobación de registros emparejados/no emparejados:**
+4. **Integración y comprobación de registros emparejados/no emparejados (Slide 5):**
    - Evidencia de granularidad: se pasa de partidas anuales y reportes mensuales a 1 fila por CUI.
    - Validación estricta `1 a 1` (`validate='one_to_one'`) mediante `left join`.
-   - **Auditoría de cruce:** **35,472 proyectos emparejados (`both`, 67.59%)** y 17,008 proyectos en `left_only` (obras por Administración Directa, compras menores a 8 UIT o formulación previa sin proceso de contratación externo).
+   - **Auditoría de cruce:** **35,472 proyectos emparejados (`both`, 67.59%)** y 17,008 proyectos en `left_only` (obras por Administración Directa, compras $<8$ UIT o formulación previa sin SEACE).
 5. **EDA y visualizaciones relevantes:**
    - 4 gráficos clave interpretados bajo la estructura pedagógica de la Universidad del Pacífico:
      **Observación → Evidencia → Interpretación → Límite**.
@@ -102,14 +102,16 @@ El notebook [`Entrega_2/Entrega_2_Data_Hunters.ipynb`](Entrega_2/Entrega_2_Data_
 
 ---
 
-## Instrucciones de Reproducibilidad
+## Cómo reproducir el Hito 2 en el Aula de Clases
+
+Para que la docente pueda replicar el código de inmediato en el salón de clases:
 
 ### Opción A — Ejecución del Notebook en Jupyter / Google Colab:
 1. Clonar el repositorio:
    ```bash
    git clone https://github.com/RomyUP1411/data-mining-project.git
    ```
-2. Si los archivos CSV crudos (`Seguimiento_PI.csv` y `Proceso_Seleccion.csv`) se colocan en la misma carpeta del notebook o en la raíz del proyecto, el notebook los procesará automáticamente.
+2. Si los archivos CSV crudos (`Seguimiento_PI.csv` y `Proceso_Seleccion.csv`) se colocan en la misma carpeta del notebook o en `data/`, el notebook los procesará automáticamente.
 3. Si no se descargan los archivos crudos (que pesan 1.5 GB), el notebook contiene salidas pre-renderizadas completas con todos los gráficos, tablas y estadísticas para su inspección inmediata.
 4. Abrir y ejecutar:
    ```bash

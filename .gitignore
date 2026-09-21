@@ -221,3 +221,19 @@ __marimo__/
 Seguimiento_PI.csv
 PROCESO_SELECCION.csv
 base_integrada_actividad_final.csv
+# Material de clases y laboratorios docentes
+Clases/
+
+# Datos y matrices CSV pesadas
+*.csv
+Entrega_2/graficos/
+
+# Documentos e informes locales
+*.docx
+*.pdf
+
+# Scripts auxiliares locales de generacion
+Entrega_2/build_*.py
+Entrega_2/crear_*.py
+Entrega_2/generar_*.py
+Entrega_2/inyectar_*.py

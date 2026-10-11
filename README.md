@@ -46,29 +46,43 @@ A partir de la retroalimentación docente del Hito 1, se corrigió la excesiva g
 
 ---
 
-## 4. Estructura del Código Fuente (Hito 2)
+## 4. Estructura del Proyecto y Guía de Exposición (Hito 2)
 
-El notebook [`Entrega_2/Entrega_2_Data_Hunters.ipynb`](Entrega_2/Entrega_2_Data_Hunters.ipynb) desarrolla sistemáticamente los componentes de la entrega:
+El notebook [`Entrega_2/Entrega_2_Data_Hunters.ipynb`](Entrega_2/Entrega_2_Data_Hunters.ipynb) y este repositorio están estructurados para seguir exactamente la **rúbrica de exposición de 12 minutos** exigida para el Hito 2:
 
-1. **Marco de Trabajo y Reformulación:** Justificación de negocio, corrección estructural de granularidad y cascada de delimitación del universo de modelado.
-2. **Carga e Inspección de Fuentes:** Diagnóstico inicial y detección flexible de rutas en entorno local o Colab.
-3. **Validación de Claves y Duplicados:** Eliminación de **113,081 duplicados exactos** en `Proceso_Seleccion` y exclusión de los 197 códigos genéricos.
-4. **Diagnóstico y Calidad de Datos:** Depuración de rangos inválidos ($[0, 100]\%$ en avance, costos $\le 0$) y análisis comparativo de atípicos (regla IQR vs. Z-Score).
-5. **Integración Relacional 1 a 1:** Cruce con validación estricta (`validate='one_to_one'`) y verificación de consistencia en registros emparejados y no emparejados.
-6. **Análisis Exploratorio de Datos (EDA):** 4 gráficos clave interpretados bajo la estructura pedagógica UP (*Observación $\rightarrow$ Evidencia $\rightarrow$ Interpretación $\rightarrow$ Límite*). Evidencia central: el **47.6% de obras en Gobiernos Locales** exhibe alerta de gasto adelantado ($>15\%$), con una brecha mediana de $+11.9\%$ (frente a $+2.0\%$ en el Gobierno Nacional).
-7. **Transformaciones y Matriz Analítica:**
-   * Creación de variables de negocio: `pct_ejecucion_financiera`, `brecha_gasto_avance`, `flag_gasto_adelantado`, `tiempo_maduracion_anios`, `gasto_anual_promedio`.
-   * Discretización ordinal (`pd.cut`) de escala de inversión.
-   * Codificación One-Hot de `nivel_gobierno` (`drop_first=True`).
-   * Escalamiento Min-Max $[0, 1]$ y estandarización Z-Score ($\mu=0, \sigma=1$) aplicado **exclusivamente sobre variables cuantitativas continuas**.
-   * Matriz Analítica final de **1,978 filas × 13 columnas** lista para minería de datos, con el identificador aislado para trazabilidad.
-8. **Plan de Modelado (Hito 3):** Hoja de ruta para clustering (K-Means, DBSCAN), detección de anomalías (Isolation Forest) y validación externa cruzada con el portal INFOBRAS de la Contraloría.
+**1. Cambios desde el Hito 1 (1.5 min):**
+* **Ajuste:** Corrección de la granularidad y ruido institucional. Se excluyeron 197 códigos presupuestales genéricos compartidos.
+* **Unidad de Análisis Definitiva:** $1\text{ fila} = 1\text{ Proyecto de Inversión Pública (CUI)}$ en ejecución.
+
+**2. Calidad de Datos (2 min):**
+* **Duplicados:** Eliminación de **113,081 duplicados exactos** en `Proceso_Seleccion`.
+* **Inconsistencias y Atípicos:** Depuración de rangos imposibles ($[0, 100]\%$ en avance físico, costos $\le 0$). Tratamiento de *outliers* comparando regla IQR vs Z-Score, conservando los datos genuinos de megaproyectos.
+
+**3. Integración y Granularidad (3 min):**
+* Agregación previa de ambas tablas a nivel de `codigo_proyecto`.
+* **Cruce (Merge):** Relacional 1 a 1 (`left join` con `validate='one_to_one'`). 
+* **Validación:** Se obtuvieron 35,472 proyectos coincidentes (asignación + contratación externa). Se excluyeron proyectos por Administración Directa (no cruzaban). El universo final se delimitó a **1,978 obras de infraestructura física en ejecución activa** (con devengado real $>0$ y avance físico reportado).
+
+**4. EDA y Transformaciones (2.5 min):**
+* **Hallazgo Principal (EDA):** El **47.6% de obras en Gobiernos Locales** exhibe alerta de gasto adelantado ($>15\%$), con una brecha mediana de $+11.9\%$ (frente a un sano $+2.0\%$ en Gobierno Nacional).
+* **Transformaciones aplicadas:** 
+  * Derivación de variables de negocio: `pct_ejecucion_financiera`, `brecha_gasto_avance`, `tiempo_maduracion_anios`.
+  * Discretización ordinal de la escala de inversión (`pd.cut`).
+  * Codificación One-Hot de `nivel_gobierno` (`drop_first=True`).
+  * Estandarización y Escalamiento aplicados únicamente sobre las variables continuas.
+
+**5. Matriz Analítica (2 min):**
+* **Representación Final:** Matriz consolidada de **1,978 filas × 13 columnas**.
+* Cada fila representa un proyecto único con sus variables financieras, operativas (avance) y categóricas ya preparadas para ingestar en los modelos. El CUI se mantiene como índice/llave aislada.
+
+**6. Siguiente Paso (1 min):**
+* **Hito 3:** Implementación de modelos no supervisados para tipificar riesgos: **Clustering K-Means / DBSCAN** (perfiles de obra) y **Isolation Forest** (detección de obras anómalas / "elefantes blancos"). Validación cruzada con el portal INFOBRAS.
 
 ---
 
 ## 5. Instrucciones de Reproducibilidad
 
-### Opción A — Ejecución del Notebook en Jupyter / Google Colab:
+### Ejecución del Notebook en Jupyter / Google Colab:
 1. Clonar el repositorio:
    ```bash
    git clone https://github.com/RomyUP1411/data-mining-project.git
@@ -79,12 +93,6 @@ El notebook [`Entrega_2/Entrega_2_Data_Hunters.ipynb`](Entrega_2/Entrega_2_Data_
    ```bash
    jupyter notebook Entrega_2/Entrega_2_Data_Hunters.ipynb
    ```
-
-### Opción B — Regeneración de Documento Oficial:
-Para regenerar el informe oficial en formato Word con tablas y cajas metodológicas:
-```bash
-python Entrega_2/generar_documento_word_hito2.py
-```
 
 ---
 

@@ -419,8 +419,11 @@ base_integrada_actividad_final.csv
 # Material de clases y laboratorios docentes
 Clases/
 
-# Datos y matrices CSV pesadas
+# Datos y matrices CSV pesadas (archivos crudos de gigabytes)
 *.csv
+!Entrega_2/matriz_analitica_final.csv
+!Entrega_2/Z_pca_proyecto.csv
+!Entrega_2/W_nmf_proyecto.csv
 Entrega_2/graficos/
 
 # Documentos e informes locales

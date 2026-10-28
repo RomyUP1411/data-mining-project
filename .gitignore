@@ -437,3 +437,7 @@ Entrega_2/build_*.py
 Entrega_2/crear_*.py
 # Entrega_2/generar_*.py (comentado para permitir subir el script del Hito 2)
 Entrega_2/inyectar_*.py
+
+# Shapefiles cartograficos (archivos binarios pesados)
+peru_shapes/
+Entrega_3/peru_shapes/

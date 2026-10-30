@@ -80,31 +80,78 @@ El notebook [`Entrega_2/Entrega_2_Data_Hunters.ipynb`](Entrega_2/Entrega_2_Data_
 
 ---
 
-## 5. Instrucciones de Reproducibilidad
+## 5. Hito 3 — Revisión Metodológica e Implementación Inicial
 
-### Ejecución del Notebook en Jupyter / Google Colab:
-1. Clonar el repositorio:
-   ```bash
-   git clone https://github.com/RomyUP1411/data-mining-project.git
-   ```
-2. Si los archivos CSV crudos (`Seguimiento_PI.csv` y `Proceso_Seleccion.csv`) se colocan en la misma carpeta del notebook o en la raíz del proyecto, el notebook los procesará de extremo a extremo.
-3. Si no se disponen los archivos crudos (que pesan 1.5 GB), el notebook cuenta con salidas pre-renderizadas completas con todos los gráficos, tablas estadísticas y chequeos de integridad para su revisión inmediata.
-4. Abrir y ejecutar:
-   ```bash
-   jupyter notebook Entrega_2/Entrega_2_Data_Hunters.ipynb
-   ```
+En esta etapa consolidamos la matriz analítica a $N = 2\,067$ proyectos de inversión pública y ejecutamos una triangulación metodológica con algoritmos de aprendizaje no supervisado para segmentar tipologías de proyectos e identificar anomalías de descalce financiero-físico.
+
+### 5.1. Matriz Analítica y Representación de Datos
+* **Unidad de análisis:** $1\text{ fila} = 1\text{ Proyecto de Inversión Pública (CUI)}$.
+* **Dimensionalidad:** 12 variables continuas y binarias representativas de ejecución operativa (`pct_ejecucion_financiera`, `avance_fisico_pct`, `brecha_gasto_avance`), magnitud (`costo_inversion`, `gasto_total`, `gasto_anual_promedio`), maduración (`tiempo_maduracion_anios`, `n_registros_presupuesto`) y complejidad contractual/institucional (`n_contratos`, `tamano_inversion_ord`, `gob_GOBIERNOS LOCALES`, `gob_GOBIERNOS REGIONALES`).
+* **Estandarización:** Escalamiento z-score con `StandardScaler` ($\mu=0, \sigma=1$).
+
+### 5.2. Técnicas de Minería de Datos y Configuraciones Evaluadas
+1. **$K$-Means (Particional):**
+   * Evaluación de $K \in [2, 10]$ mediante curva de inercia (*Elbow Method*), Silueta y Davies-Bouldin.
+   * **Configuración seleccionada:** $K=4$. Aísla la distorsión del megaproyecto Línea 2 del Metro ($N=1$, costo $>$ S/. 12\,000M) y delimita con nitidez obras municipales ($N=924$), medianas nacionales/regionales ($N=809$) y obras complejas con alta fragmentación contractual ($N=333$, promedio 363 contratos).
+2. **DBSCAN (Basado en Densidad):**
+   * Parámetro $\text{MinPts} = 2 \times d = 24$.
+   * Inspección de la rodilla en el gráfico de $k$-distancias ($k=24$) y prueba de $\varepsilon \in \{1.5, 1.8, 2.0, 2.2\}$.
+   * **Configuración seleccionada:** $\varepsilon = 1.8$. Descubre 3 macro-clusters institucionales y etiqueta a 174 proyectos (8.4\%) como **ruido estructural**, los cuales corresponden a casos críticos de descalce y sobrecontratación.
+3. **Agrupamiento Jerárquico Aglomerativo:**
+   * Comparación de criterios de enlace: `ward`, `complete`, `average` y `single`.
+   * Los enlaces *single*, *complete* y *average* colapsan por efecto de encadenamiento (*chaining*) concentrando más de 2,050 obras en un solo nodo.
+   * El enlace de **Ward ($K=4$)** genera una estructura balanceada ($1\,117$, $544$, $405$ y $1$) concordante con los arquetipos de $K$-Means.
+4. **Reducción Dimensional y Análisis Espacial:**
+   * Proyección 2D mediante **PCA** para contrastar visualmente la coherencia geométrica de las particiones.
+   * Integración cartográfica con **GeoPandas** y cartografía oficial IGN, identificando una fuerte concentración de inversiones en Cusco (289 proyectos), Puno, Áncash y Lima.
+
+### 5.3. Entregables del Hito 3
+* **Notebook Oficial Reproducible:** [`Entrega_3/Entrega_3_Data_Hunters.ipynb`](Entrega_3/Entrega_3_Data_Hunters.ipynb) (ejecutado con todas las celdas, salidas, tablas y gráficos embebidos).
+* **Informe Académico en LaTeX / Formato IEEE Conference:**
+  * PDF compilado: [`Entrega_3/Hito3_IEEE_Data_Hunters.pdf`](Entrega_3/Hito3_IEEE_Data_Hunters.pdf)
+  * Código fuente: [`Entrega_3/Hito3_IEEE_Data_Hunters.tex`](Entrega_3/Hito3_IEEE_Data_Hunters.tex)
+* **Figuras en Alta Resolución:** Disponibles en [`Entrega_3/figuras/`](Entrega_3/figuras/) (`codo_kmeans.png`, `k_distancias_dbscan.png`, `dendrograma_ward.png`, `pca_comparacion_clusters.png`, `mapa_peru_proyectos.png`).
+* **Datos Analíticos con Clusters:** [`Entrega_3/matriz_analitica_con_clusters.csv`](Entrega_3/matriz_analitica_con_clusters.csv).
 
 ---
 
-## 6. Estado del Proyecto
+## 6. Instrucciones de Reproducibilidad
+
+### 6.1. Requisitos de Entorno
+* Python 3.10+
+* Librerías requeridas: `pandas`, `numpy`, `scikit-learn`, `scipy`, `matplotlib`, `seaborn`, `geopandas`, `shapely`.
+
+### 6.2. Ejecución de Notebooks
+* **Para reproducir el Hito 2:**
+  ```bash
+  jupyter notebook Entrega_2/Entrega_2_Data_Hunters.ipynb
+  ```
+* **Para reproducir el Hito 3:**
+  ```bash
+  jupyter notebook Entrega_3/Entrega_3_Data_Hunters.ipynb
+  ```
+
+### 6.3. Compilación del Informe en LaTeX (Formato IEEE)
+El informe puede compilarse directamente desde la carpeta `Entrega_3/` mediante cualquier motor LaTeX (`pdflatex`, `xelatex` o `tectonic`):
+```bash
+cd Entrega_3
+tectonic Hito3_IEEE_Data_Hunters.tex
+# o alternativamente:
+# pdflatex Hito3_IEEE_Data_Hunters.tex
+```
+
+---
+
+## 7. Estado del Proyecto
 
 - [x] **Hito 1:** Planteamiento del problema, exploración inicial y viabilidad.
-- [x] **Hito 2:** Preparación de datos, resolución de granularidad ($1\text{ fila} = 1\text{ Proyecto CUI}$), exclusión de códigos genéricos, EDA formal y primera matriz analítica (1,978 obras × 13 variables).
-- [ ] **Hito 3:** Modelado de Minería de Datos (Clustering K-Means / DBSCAN y Detección de Anomalías con Isolation Forest).
+- [x] **Hito 2:** Preparación de datos, resolución de granularidad ($1\text{ fila} = 1\text{ Proyecto CUI}$), exclusión de códigos genéricos, EDA formal y primera matriz analítica reproducible.
+- [x] **Hito 3:** Revisión metodológica e implementación inicial de minería de datos: Clustering no supervisado (K-Means, DBSCAN, Jerárquico Ward), reducción dimensional (PCA), análisis geoespacial (GeoPandas) e informe académico formato IEEE.
+- [ ] **Hito 4:** Validación final, remuestreo/bootstrapping, modelado supervisado/heurístico de alerta temprana, discusión integral y conclusiones definitivas.
 
 ---
 
-## 7. Equipo de Investigación
+## 8. Equipo de Investigación
 
 **Data Hunters**
 * Fernando Torres

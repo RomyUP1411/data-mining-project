@@ -441,3 +441,15 @@ Entrega_2/inyectar_*.py
 # Shapefiles cartograficos (archivos binarios pesados)
 peru_shapes/
 Entrega_3/peru_shapes/
+
+# Indicaciones docentes y archivos de pauta Hito 3
+Entrega_3/indicaciones_entrega_3/
+indicaciones_entrega_3/
+
+# Archivos fuente LaTeX auxiliares
+*.tex
+Entrega_3/*.tex
+
+# Figuras auxiliares exportadas
+Entrega_3/figuras/
+

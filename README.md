@@ -115,43 +115,66 @@ En esta etapa consolidamos la matriz analítica a $N = 2\,067$ proyectos de inve
 
 ---
 
-## 6. Instrucciones de Reproducibilidad
+## 6. Hito 4 — Paper Final, Pipeline Georreferenciado en HTML y Conclusiones
 
-### 6.1. Requisitos de Entorno
-* Python 3.10+
-* Librerías requeridas: `pandas`, `numpy`, `scikit-learn`, `scipy`, `matplotlib`, `seaborn`, `geopandas`, `shapely`.
+En la entrega final cerramos el proyecto incorporando la retroalimentación metodológica recibida, el pipeline completo con ejemplos por etapa, el mapa interactivo de clusters y outliers en Folium (`mapa_clusters.html`), la evaluación de proyectos nuevos sin reajustar los modelos, la discusión de limitaciones y las conclusiones y recomendaciones para el usuario.
 
-### 6.2. Ejecución de Notebooks
-* **Para reproducir el Hito 2:**
+### 6.1. Pipeline de Desarrollo y Resultados Definitivos
+1. **Construcción de la matriz analítica georreferenciada:**
+   * Integración 1 a 1 por CUI entre `Seguimiento_PI` y `Proceso_Seleccion` del MEF junto con los polígonos regionales del IGN (`ADM1_ES` en proyección métrica UTM 18S `EPSG:32718`), obteniendo $N = 2\,067$ proyectos con 12 atributos estandarizados (`StandardScaler`) y 2 factores no negativos (`NMF1`, `NMF2` con `MinMaxScaler` + `NMF`).
+2. **Selección del modelo y perfiles operativos ($K = 3$):**
+   * Convergencia de Inercia (codo con caída de $-19.72\%$), **Silhouette máximo ($0.231$)** y **Davies-Bouldin mínimo ($1.191$)** en **$K = 3$ segmentos** tanto en $K$-Means como en Jerárquico Ward ($1\,522 / 544 / 1$):
+     * **Segmento 0 ($43.15\%$, $n = 892$):** Obras regionales y nacionales de mayor escala (S/ $74.1$M promedio) y alta complejidad contractual ($229.7$ contratos por obra).
+     * **Segmento 1 ($56.80\%$, $n = 1\,174$):** Obras locales municipales compactas (S/ $5.5$M promedio, `silueta_media = 0.341`, $0$ negativos).
+     * **Segmento 2 ($0.05\%$, $n = 1$):** Megaproyecto singular aislado (*Línea 2 del Metro de Lima y Callao*, S/ $12\,075.4$M).
+3. **Detección de proyectos atípicos con DBSCAN y Mapa HTML en Folium (`mapa_clusters.html`):**
+   * **DBSCAN ($\varepsilon = 1.8, \text{MinPts} = 24$)** separa **174 proyectos ($8.42\%$)** como ruido (outliers), donde la tasa de alerta crítica de gasto adelantado alcanza **$37.93\%$** (frente a $11.04\%$ en los grupos densos) con un promedio de $523.4$ contratos por obra.
+   * El mapa interactivo [`Entrega_4/mapa_clusters.html`](Entrega_4/mapa_clusters.html) muestra que **Lima** concentra el mayor volumen y presupuesto en ruido ($74$ outliers, S/ $31\,391.7$M), mientras que **Ucayali ($41.38\%$)**, **Pasco ($23.81\%$)** y **Huancavelica ($14.63\%$)** presentan la mayor proporción relativa de su cartera en condición anómala por fraccionamiento contractual.
+4. **Regla operativa para proyectos nuevos:**
+   * Aplicación de `scaler.transform` (sin reajustar el escalador), asignación con `kmeans_final.predict`, filtro de revisión manual mediante el **percentil 95 de distancia al centroide ($3.24$)** y regla de vecindad a los puntos núcleo (`core_sample_indices_`) en DBSCAN.
+
+### 6.2. Entregables del Hito 4 (`Entrega_4/`)
+* **Paper Final en Formato IEEE (PDF):** [`Entrega_4/Hito4_IEEE_Data_Hunters.pdf`](Entrega_4/Hito4_IEEE_Data_Hunters.pdf).
+* **Notebook Final Reproducible:** [`Entrega_4/Entrega_4_Data_Hunters.ipynb`](Entrega_4/Entrega_4_Data_Hunters.ipynb) (ejecutado de inicio a fin sin errores).
+* **Mapa HTML Interactivo de Clusters y Outliers (Folium):** [`Entrega_4/mapa_clusters.html`](Entrega_4/mapa_clusters.html).
+* **Matriz Analítica Final con Clusters y Factores NMF:** [`Entrega_4/matriz_analitica_con_clusters.csv`](Entrega_4/matriz_analitica_con_clusters.csv).
+* **Dependencias del Repositorio:** [`requirements.txt`](requirements.txt).
+
+---
+
+## 7. Instrucciones de Reproducibilidad
+
+### 7.1. Instalación de Dependencias
+```bash
+pip install -r requirements.txt
+```
+
+### 7.2. Ejecución de Notebooks
+* **Para reproducir el Hito 4 (Entrega Final):**
   ```bash
-  jupyter notebook Entrega_2/Entrega_2_Data_Hunters.ipynb
+  jupyter notebook Entrega_4/Entrega_4_Data_Hunters.ipynb
   ```
 * **Para reproducir el Hito 3:**
   ```bash
   jupyter notebook Entrega_3/Entrega_3_Data_Hunters.ipynb
   ```
-
-### 6.3. Compilación del Informe en LaTeX (Formato IEEE)
-El informe puede compilarse directamente desde la carpeta `Entrega_3/` mediante cualquier motor LaTeX (`pdflatex`, `xelatex` o `tectonic`):
-```bash
-cd Entrega_3
-tectonic Hito3_IEEE_Data_Hunters.tex
-# o alternativamente:
-# pdflatex Hito3_IEEE_Data_Hunters.tex
-```
+* **Para reproducir el Hito 2:**
+  ```bash
+  jupyter notebook Entrega_2/Entrega_2_Data_Hunters.ipynb
+  ```
 
 ---
 
-## 7. Estado del Proyecto
+## 8. Estado del Proyecto
 
 - [x] **Hito 1:** Planteamiento del problema, exploración inicial y viabilidad.
 - [x] **Hito 2:** Preparación de datos, resolución de granularidad ($1\text{ fila} = 1\text{ Proyecto CUI}$), exclusión de códigos genéricos, EDA formal y primera matriz analítica reproducible.
-- [x] **Hito 3:** Revisión metodológica e implementación inicial de minería de datos: Clustering no supervisado (K-Means, DBSCAN, Jerárquico Ward), reducción dimensional (PCA), análisis geoespacial (GeoPandas) e informe académico formato IEEE.
-- [ ] **Hito 4:** Validación final, remuestreo/bootstrapping, modelado supervisado/heurístico de alerta temprana, discusión integral y conclusiones definitivas.
+- [x] **Hito 3:** Revisión metodológica e implementación inicial de minería de datos: Clustering no supervisado (K-Means, DBSCAN, Jerárquico Ward), reducción dimensional con NMF, análisis geoespacial (GeoPandas y Folium) e informe académico formato IEEE.
+- [x] **Hito 4:** Paper final IEEE, pipeline de desarrollo con ejemplo por etapa, resultados definitivos ($K=3$ y outliers DBSCAN), mapa interactivo HTML (`mapa_clusters.html`), evaluación de proyectos nuevos, discusión de limitaciones, conclusiones y recomendaciones para el usuario.
 
 ---
 
-## 8. Equipo de Investigación
+## 9. Equipo de Investigación
 
 **Data Hunters**
 * Fernando Torres

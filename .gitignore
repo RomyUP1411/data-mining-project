@@ -223,6 +223,8 @@ PROCESO_SELECCION.csv
 base_integrada_actividad_final.csv
 # Material de clases y laboratorios docentes
 Clases/
+CLASES/
+*.mp4
 #   before PyInstaller builds the exe, so as to inject date/other infos into it.
 *.manifest
 *.spec
@@ -418,6 +420,8 @@ PROCESO_SELECCION.csv
 base_integrada_actividad_final.csv
 # Material de clases y laboratorios docentes
 Clases/
+CLASES/
+*.mp4
 
 # Datos y matrices CSV pesadas (archivos crudos de gigabytes)
 *.csv
@@ -425,6 +429,7 @@ Clases/
 !Entrega_2/Z_pca_proyecto.csv
 !Entrega_2/W_nmf_proyecto.csv
 !Entrega_3/matriz_analitica_con_clusters.csv
+!Entrega_4/matriz_analitica_con_clusters.csv
 Entrega_2/graficos/
 
 # Documentos e informes locales
@@ -441,15 +446,19 @@ Entrega_2/inyectar_*.py
 # Shapefiles cartograficos (archivos binarios pesados)
 peru_shapes/
 Entrega_3/peru_shapes/
+Entrega_4/peru_shapes/
 
-# Indicaciones docentes y archivos de pauta Hito 3
+# Indicaciones docentes y archivos de pauta Hito 3 y Hito 4
 Entrega_3/indicaciones_entrega_3/
 indicaciones_entrega_3/
+Entrega_3/Entrega_Hito3_Proyecto_DM.pdf
+Entrega_4/(DM)Entrega_Hito4.pdf
 
 # Archivos fuente LaTeX auxiliares
 *.tex
 Entrega_3/*.tex
+Entrega_4/*.tex
 
 # Figuras auxiliares exportadas
 Entrega_3/figuras/
-
+Entrega_4/figuras/

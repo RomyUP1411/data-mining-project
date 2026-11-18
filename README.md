@@ -107,10 +107,8 @@ En esta etapa consolidamos la matriz analítica a $N = 2\,067$ proyectos de inve
 
 ### 5.3. Entregables del Hito 3
 * **Notebook Oficial Reproducible:** [`Entrega_3/Entrega_3_Data_Hunters.ipynb`](Entrega_3/Entrega_3_Data_Hunters.ipynb) (ejecutado con todas las celdas, salidas, tablas y gráficos embebidos).
-* **Informe Académico en LaTeX / Formato IEEE Conference:**
-  * PDF compilado: [`Entrega_3/Hito3_IEEE_Data_Hunters.pdf`](Entrega_3/Hito3_IEEE_Data_Hunters.pdf)
-  * Código fuente: [`Entrega_3/Hito3_IEEE_Data_Hunters.tex`](Entrega_3/Hito3_IEEE_Data_Hunters.tex)
-* **Figuras en Alta Resolución:** Disponibles en [`Entrega_3/figuras/`](Entrega_3/figuras/) (`codo_kmeans.png`, `k_distancias_dbscan.png`, `dendrograma_ward.png`, `pca_comparacion_clusters.png`, `mapa_peru_proyectos.png`).
+* **Informe Académico en Formato IEEE Conference:** [`Entrega_3/Hito3_IEEE_Data_Hunters.pdf`](Entrega_3/Hito3_IEEE_Data_Hunters.pdf).
+* **Mapa Interactivo de Outliers (Folium):** [`Entrega_3/mapa_outliers_dbscan.html`](Entrega_3/mapa_outliers_dbscan.html).
 * **Datos Analíticos con Clusters:** [`Entrega_3/matriz_analitica_con_clusters.csv`](Entrega_3/matriz_analitica_con_clusters.csv).
 
 ---
@@ -128,18 +126,42 @@ En la entrega final cerramos el proyecto incorporando la retroalimentación meto
      * **Segmento 1 ($56.80\%$, $n = 1\,174$):** Obras locales municipales compactas (S/ $5.5$M promedio, `silueta_media = 0.341`, $0$ negativos).
      * **Segmento 2 ($0.05\%$, $n = 1$):** Megaproyecto singular aislado (*Línea 2 del Metro de Lima y Callao*, S/ $12\,075.4$M).
 3. **Detección de proyectos atípicos con DBSCAN y Mapa HTML en Folium (`mapa_clusters.html`):**
-   * **DBSCAN ($\varepsilon = 1.8, \text{MinPts} = 24$)** separa **174 proyectos ($8.42\%$)** como ruido (outliers), donde la tasa de alerta crítica de gasto adelantado alcanza **$37.93\%$** (frente a $11.04\%$ en los grupos densos) con un promedio de $523.4$ contratos por obra.
+   * **DBSCAN ($\varepsilon = 1.8, \text{MinPts} = 24$)** separa **174 proyectos ($8.42\%$)** como ruido (outliers), donde la tasa de alerta crítica de gasto adelantado alcanza **$37.93\%$** (frente a $11.41\%$ en los grupos densos) con un promedio de $523.4$ contratos por obra.
    * El mapa interactivo [`Entrega_4/mapa_clusters.html`](Entrega_4/mapa_clusters.html) muestra que **Lima** concentra el mayor volumen y presupuesto en ruido ($74$ outliers, S/ $31\,391.7$M), mientras que **Ucayali ($41.38\%$)**, **Pasco ($23.81\%$)** y **Huancavelica ($14.63\%$)** presentan la mayor proporción relativa de su cartera en condición anómala por fraccionamiento contractual.
 4. **Regla operativa para proyectos nuevos:**
    * Aplicación de `scaler.transform` (sin reajustar el escalador), asignación con `kmeans_final.predict`, filtro de revisión manual mediante el **percentil 95 de distancia al centroide ($4.24$)** y regla de vecindad a los puntos núcleo (`core_sample_indices_`) en DBSCAN.
 
 ### 6.2. Entregables del Hito 4 (`Entrega_4/`)
-* **Paper Final en Formato IEEE (PDF y fuente LaTeX):** [`Entrega_4/Hito4_IEEE_Data_Hunters.pdf`](Entrega_4/Hito4_IEEE_Data_Hunters.pdf) y [`Entrega_4/Hito4_IEEE_Data_Hunters.tex`](Entrega_4/Hito4_IEEE_Data_Hunters.tex).
-* **Notebook Final Reproducible:** [`Entrega_4/Entrega_4_Data_Hunters.ipynb`](Entrega_4/Entrega_4_Data_Hunters.ipynb) (ejecutado de inicio a fin sin errores).
+* **Paper Final en Formato IEEE (PDF):** [`Entrega_4/Hito4_IEEE_Data_Hunters.pdf`](Entrega_4/Hito4_IEEE_Data_Hunters.pdf).
+* **Notebook Final Reproducible:** [`Entrega_4/Entrega_4_Data_Hunters.ipynb`](Entrega_4/Entrega_4_Data_Hunters.ipynb) (ejecutado de inicio a fin sin errores, con todas las tablas y figuras del paper embebidas).
 * **Mapa HTML Interactivo de Clusters y Outliers (Folium):** [`Entrega_4/mapa_clusters.html`](Entrega_4/mapa_clusters.html).
 * **Matriz Analítica de Entrada y Matriz con Clusters:** [`Entrega_4/matriz_analitica_final.csv`](Entrega_4/matriz_analitica_final.csv) y [`Entrega_4/matriz_analitica_con_clusters.csv`](Entrega_4/matriz_analitica_con_clusters.csv).
 * **Cartografía Oficial IGN (Shapefiles Regionales):** [`Entrega_4/peru_shapes/`](Entrega_4/peru_shapes/) y archivo comprimido completo en [`Entrega_3/peru_shapes.zip`](Entrega_3/peru_shapes.zip).
 * **Dependencias del Repositorio:** [`requirements.txt`](requirements.txt).
+
+### 6.3. Estructura de Archivos del Repositorio
+```text
+data-mining-project/
+├── README.md
+├── requirements.txt
+├── Semana 1/ ... Semana 3 - Entrega 1/       # Avances iniciales y Hito 1
+├── Entrega_2/                                # Hito 2: limpieza, integración y matriz analítica base
+│   ├── Entrega_2_Data_Hunters.ipynb
+│   └── matriz_analitica_final.csv
+├── Entrega_3/                                # Hito 3: implementación inicial de clustering
+│   ├── Entrega_3_Data_Hunters.ipynb
+│   ├── Hito3_IEEE_Data_Hunters.pdf
+│   ├── mapa_outliers_dbscan.html
+│   ├── matriz_analitica_con_clusters.csv
+│   └── peru_shapes.zip
+└── Entrega_4/                                # Hito 4 (Entrega Final Reproducible)
+    ├── Entrega_4_Data_Hunters.ipynb          # Notebook completo ejecutado sin errores
+    ├── Hito4_IEEE_Data_Hunters.pdf           # Paper final en formato IEEE
+    ├── mapa_clusters.html                    # Mapa interactivo Folium (abrir en navegador)
+    ├── matriz_analitica_final.csv            # Matriz de entrada (2,067 proyectos × 17 cols)
+    ├── matriz_analitica_con_clusters.csv     # Matriz final enriquecida (2,067 × 23 cols)
+    └── peru_shapes/                          # Shapefiles oficiales del IGN (ADM1)
+```
 
 ---
 
@@ -150,18 +172,16 @@ En la entrega final cerramos el proyecto incorporando la retroalimentación meto
 pip install -r requirements.txt
 ```
 
-### 7.2. Ejecución de Notebooks
-* **Para reproducir el Hito 4 (Entrega Final):**
+### 7.2. Ejecución de Notebooks y Visualización del Mapa HTML
+* **Para reproducir el Hito 4 (Entrega Final):** utiliza directamente `Entrega_4/matriz_analitica_final.csv` y `Entrega_4/peru_shapes/` (ambos incluidos en el repositorio):
   ```bash
   jupyter notebook Entrega_4/Entrega_4_Data_Hunters.ipynb
   ```
+* **Para visualizar el mapa interactivo en navegador:** abrir [`Entrega_4/mapa_clusters.html`](Entrega_4/mapa_clusters.html) en Chrome o Edge (por ejemplo `start Entrega_4/mapa_clusters.html` en Windows).
+* **Para reproducir desde fuentes crudas (Hito 2):** descargar `Seguimiento_PI.csv` y `Proceso_Seleccion.csv` desde los enlaces oficiales de la Sección 2 (omitidos en GitHub por tamaño) y ejecutar [`Entrega_2/Entrega_2_Data_Hunters.ipynb`](Entrega_2/Entrega_2_Data_Hunters.ipynb).
 * **Para reproducir el Hito 3:**
   ```bash
   jupyter notebook Entrega_3/Entrega_3_Data_Hunters.ipynb
-  ```
-* **Para reproducir el Hito 2:**
-  ```bash
-  jupyter notebook Entrega_2/Entrega_2_Data_Hunters.ipynb
   ```
 
 ---

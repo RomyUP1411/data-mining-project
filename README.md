@@ -118,18 +118,19 @@ En esta etapa consolidamos la matriz analítica a $N = 2\,067$ proyectos de inve
 En la entrega final cerramos el proyecto incorporando la retroalimentación metodológica recibida, el pipeline completo con ejemplos por etapa, el mapa interactivo de clusters y outliers en Folium (`mapa_clusters.html`), la evaluación de proyectos nuevos sin reajustar los modelos, la discusión de limitaciones y las conclusiones y recomendaciones para el usuario.
 
 ### 6.1. Pipeline de Desarrollo y Resultados Definitivos
-1. **Construcción de la matriz analítica georreferenciada:**
-   * Integración 1 a 1 por CUI entre `Seguimiento_PI` y `Proceso_Seleccion` del MEF junto con los polígonos regionales del IGN (`ADM1_ES` en proyección métrica UTM 18S `EPSG:32718`), obteniendo $N = 2\,067$ proyectos con 12 atributos estandarizados (`StandardScaler`) y 2 factores no negativos (`NMF1`, `NMF2` con `MinMaxScaler` + `NMF`).
+1. **Construcción de la matriz analítica y descarte de outlier extremo ($N = 2\,066$):**
+   * Integración 1 a 1 por CUI entre `Seguimiento_PI` y `Proceso_Seleccion` del MEF junto con los polígonos regionales del IGN (`ADM1_ES` en proyección métrica UTM 18S `EPSG:32718`). Se excluye previamente la *Línea 2 del Metro de Lima* (`CUI 2233850`, S/ $12\,075.4$M, $>5\times$ el segundo mayor proyecto) para evitar que comprima la escala de distancias, trabajando con **$N = 2\,066$ proyectos activos** y 12 atributos estandarizados (`StandardScaler`).
 2. **Selección del modelo y perfiles operativos ($K = 3$):**
-   * Convergencia de Inercia (codo con caída de $-19.72\%$), **Silhouette máximo ($0.231$)** y **Davies-Bouldin mínimo ($1.191$)** en **$K = 3$ segmentos** tanto en $K$-Means como en Jerárquico Ward ($1\,522 / 544 / 1$):
-     * **Segmento 0 ($43.15\%$, $n = 892$):** Obras regionales y nacionales de mayor escala (S/ $74.1$M promedio) y alta complejidad contractual ($229.7$ contratos por obra).
-     * **Segmento 1 ($56.80\%$, $n = 1\,174$):** Obras locales municipales compactas (S/ $5.5$M promedio, `silueta_media = 0.341`, $0$ negativos).
-     * **Segmento 2 ($0.05\%$, $n = 1$):** Megaproyecto singular aislado (*Línea 2 del Metro de Lima y Callao*, S/ $12\,075.4$M).
-3. **Detección de proyectos atípicos con DBSCAN y Mapa HTML en Folium (`mapa_clusters.html`):**
-   * **DBSCAN ($\varepsilon = 1.8, \text{MinPts} = 24$)** separa **174 proyectos ($8.42\%$)** como ruido (outliers), donde la tasa de alerta crítica de gasto adelantado alcanza **$37.93\%$** (frente a $11.41\%$ en los grupos densos) con un promedio de $523.4$ contratos por obra.
-   * El mapa interactivo [`Entrega_4/mapa_clusters.html`](Entrega_4/mapa_clusters.html) muestra que **Lima** concentra el mayor volumen y presupuesto en ruido ($74$ outliers, S/ $31\,391.7$M), mientras que **Ucayali ($41.38\%$)**, **Pasco ($23.81\%$)** y **Huancavelica ($14.63\%$)** presentan la mayor proporción relativa de su cartera en condición anómala por fraccionamiento contractual.
+   * Convergencia de Inercia (codo con caída de $-16.00\%$), **Silhouette óptimo ($0.221$)** y **Davies-Bouldin mínimo local ($1.479$)** (frente al deterioro en $K=4$ con Silhouette $0.211$ y DB $1.607$) en **$K = 3$ segmentos** tanto en $K$-Means como en Jerárquico Ward ($1\,078 / 960 / 28$):
+     * **Segmento 0 ($2.66\%$, $n = 55$):** Megaproyectos de gran escala (S/ $526.0$M promedio, $14.53$ años de maduración, $18.18\%$ con alerta).
+     * **Segmento 1 ($48.45\%$, $n = 1\,001$):** Obras locales municipales compactas (S/ $5.2$M promedio, `silueta_media = 0.328`, $0$ negativos).
+     * **Segmento 2 ($48.89\%$, $n = 1\,010$):** Obras regionales y nacionales complejas (S/ $38.0$M promedio y $211.2$ contratos por obra).
+3. **Aislamiento de proyectos atípicos con DBSCAN, interpretación con PCA/NMF y Mapa HTML en Folium (`mapa_clusters.html`):**
+   * **DBSCAN ($\varepsilon = 1.8, \text{MinPts} = 24$)** separa **215 proyectos ($10.41\%$)** como ruido (outliers), donde la tasa de alerta crítica de gasto adelantado alcanza **$33.02\%$** (frente a $11.40\%$ en los $1\,851$ proyectos de clusters densos) con un promedio de $467.5$ contratos por obra.
+   * **PCA y NMF aplicados sobre los 215 proyectos en ruido:** permiten descomponer las anomalías del ruido en tres dimensiones ($61.83\%$ de varianza en PCA `Z1-Z3` y dos factores aditivos en NMF), diferenciando obras con sobregasto financiero adelantado (`Z2` / `NMF1`) frente a obras regionales con fraccionamiento contractual extremo (`NMF2`).
+   * El mapa interactivo [`Entrega_4/mapa_clusters.html`](Entrega_4/mapa_clusters.html) construido sobre los 215 proyectos en ruido muestra que **Lima** concentra el mayor volumen y presupuesto en ruido ($89$ obras en ruido, S/ $23\,070.3$M), mientras que **Ucayali ($44.83\%$)**, **Pasco ($28.57\%$)** y **Huancavelica ($14.63\%$)** presentan la mayor proporción relativa de su cartera en condición anómala.
 4. **Regla operativa para proyectos nuevos:**
-   * Aplicación de `scaler.transform` (sin reajustar el escalador), asignación con `kmeans_final.predict`, filtro de revisión manual mediante el **percentil 95 de distancia al centroide ($4.24$)** y regla de vecindad a los puntos núcleo (`core_sample_indices_`) en DBSCAN.
+   * Aplicación de `scaler.transform` (sin reajustar el escalador), asignación con `kmeans_final.predict`, filtro de revisión manual mediante el **percentil 95 de distancia al centroide ($4.41$)** y regla de vecindad a los puntos núcleo (`core_sample_indices_`) en DBSCAN.
 
 ### 6.2. Entregables del Hito 4 (`Entrega_4/`)
 * **Paper Final en Formato IEEE (PDF):** [`Entrega_4/Hito4_IEEE_Data_Hunters.pdf`](Entrega_4/Hito4_IEEE_Data_Hunters.pdf).

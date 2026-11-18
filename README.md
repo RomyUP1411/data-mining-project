@@ -131,13 +131,14 @@ En la entrega final cerramos el proyecto incorporando la retroalimentación meto
    * **DBSCAN ($\varepsilon = 1.8, \text{MinPts} = 24$)** separa **174 proyectos ($8.42\%$)** como ruido (outliers), donde la tasa de alerta crítica de gasto adelantado alcanza **$37.93\%$** (frente a $11.04\%$ en los grupos densos) con un promedio de $523.4$ contratos por obra.
    * El mapa interactivo [`Entrega_4/mapa_clusters.html`](Entrega_4/mapa_clusters.html) muestra que **Lima** concentra el mayor volumen y presupuesto en ruido ($74$ outliers, S/ $31\,391.7$M), mientras que **Ucayali ($41.38\%$)**, **Pasco ($23.81\%$)** y **Huancavelica ($14.63\%$)** presentan la mayor proporción relativa de su cartera en condición anómala por fraccionamiento contractual.
 4. **Regla operativa para proyectos nuevos:**
-   * Aplicación de `scaler.transform` (sin reajustar el escalador), asignación con `kmeans_final.predict`, filtro de revisión manual mediante el **percentil 95 de distancia al centroide ($3.24$)** y regla de vecindad a los puntos núcleo (`core_sample_indices_`) en DBSCAN.
+   * Aplicación de `scaler.transform` (sin reajustar el escalador), asignación con `kmeans_final.predict`, filtro de revisión manual mediante el **percentil 95 de distancia al centroide ($4.24$)** y regla de vecindad a los puntos núcleo (`core_sample_indices_`) en DBSCAN.
 
 ### 6.2. Entregables del Hito 4 (`Entrega_4/`)
-* **Paper Final en Formato IEEE (PDF):** [`Entrega_4/Hito4_IEEE_Data_Hunters.pdf`](Entrega_4/Hito4_IEEE_Data_Hunters.pdf).
+* **Paper Final en Formato IEEE (PDF y fuente LaTeX):** [`Entrega_4/Hito4_IEEE_Data_Hunters.pdf`](Entrega_4/Hito4_IEEE_Data_Hunters.pdf) y [`Entrega_4/Hito4_IEEE_Data_Hunters.tex`](Entrega_4/Hito4_IEEE_Data_Hunters.tex).
 * **Notebook Final Reproducible:** [`Entrega_4/Entrega_4_Data_Hunters.ipynb`](Entrega_4/Entrega_4_Data_Hunters.ipynb) (ejecutado de inicio a fin sin errores).
 * **Mapa HTML Interactivo de Clusters y Outliers (Folium):** [`Entrega_4/mapa_clusters.html`](Entrega_4/mapa_clusters.html).
-* **Matriz Analítica Final con Clusters y Factores NMF:** [`Entrega_4/matriz_analitica_con_clusters.csv`](Entrega_4/matriz_analitica_con_clusters.csv).
+* **Matriz Analítica de Entrada y Matriz con Clusters:** [`Entrega_4/matriz_analitica_final.csv`](Entrega_4/matriz_analitica_final.csv) y [`Entrega_4/matriz_analitica_con_clusters.csv`](Entrega_4/matriz_analitica_con_clusters.csv).
+* **Cartografía Oficial IGN (Shapefiles Regionales):** [`Entrega_4/peru_shapes/`](Entrega_4/peru_shapes/) y archivo comprimido completo en [`Entrega_3/peru_shapes.zip`](Entrega_3/peru_shapes.zip).
 * **Dependencias del Repositorio:** [`requirements.txt`](requirements.txt).
 
 ---

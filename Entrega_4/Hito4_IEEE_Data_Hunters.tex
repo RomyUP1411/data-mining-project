@@ -1,0 +1,209 @@
+\documentclass[conference]{IEEEtran}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-tabla]{babel}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{url}
+\usepackage[hidelinks]{hyperref}
+
+\begin{document}
+
+\title{Segmentaci\'on y Detecci\'on Georreferenciada de Descalce en Obras P\'ublicas del Sistema Invierte.pe Mediante Miner\'ia de Datos}
+
+\author{\IEEEauthorblockN{Fernando Torres Valdivia, Romy Tipacti Carrasco, Arturo \'Alvarez de la Torre}
+\IEEEauthorblockA{Curso: Data Mining\\
+Universidad del Pac\'ifico\\
+Docente: Soledad Espez\'ua Llerena}}
+
+\maketitle
+
+\begin{abstract}
+En la administraci\'on de la inversi\'on p\'ublica peruana, la desconexi\'on entre los registros de devengado financiero y las valorizaciones del avance f\'isico impide detectar oportunamente obras con riesgo de sobrecosto y paralizaci\'on. Este art\'iculo presenta el dise\~no, implementaci\'on y evaluaci\'on final de un flujo de miner\'ia de datos no supervisada aplicado sobre una matriz anal\'itica reproducible de 2\,067 proyectos de inversi\'on p\'ublica (CUI) en ejecuci\'on activa del sistema Invierte.pe, caracterizados mediante 12 atributos presupuestales, contractuales e institucionales. Evaluamos comparativamente algoritmos particionales ($K$-Means), jer\'arquicos aglomerativos (enlace de Ward) y basados en densidad (DBSCAN), empleando Factorizaci\'on de Matrices No Negativas (NMF) en dos factores para visualizar la cartera en 2D sin la compresi\'on de escala provocada por megaproyectos extremos. Los resultados demuestran que la inercia, el coeficiente de Silhouette ($0.231$, m\'aximo global) y el \'indice de Davies-Bouldin ($1.191$, m\'inimo global) convergen en $K = 3$ segmentos operativos: obras locales municipales compactas ($56.8\%$), obras regionales y nacionales con alta carga contractual ($43.15\%$) y un megaproyecto singular ($0.05\%$). Por su parte, DBSCAN ($\varepsilon = 1.8$, $\text{MinPts} = 24$) a\'isla a 174 proyectos at\'ipicos ($8.42\%$) cuya tasa de alerta de gasto adelantado ($37.93\%$) m\'as que triplica al resto de la cartera ($11.0\%$). Al georreferenciar los segmentos y outliers en un mapa interactivo en Folium, concluimos que esta arquitectura combinada permite a la Contralor\'ia y al MEF priorizar auditor\'ias en regiones cr\'iticas como Ucayali ($41.4\%$ de su cartera en ruido), Pasco ($23.8\%$) y Lima ($74$ outliers).
+\end{abstract}
+
+\begin{IEEEkeywords}
+miner\'ia de datos, clustering no supervisado, NMF, DBSCAN, Folium.
+\end{IEEEkeywords}
+
+\section{Introducci\'on}
+
+\textbf{Contexto y problema:} El Sistema Nacional de Programaci\'on Multianual y Gesti\'on de Inversiones (Invierte.pe) conduce la asignaci\'on de recursos p\'ublicos para infraestructura en el Per\'u \cite{mef2024}. Pese a la magnitud del presupuesto anual, la supervisi\'on operativa enfrenta una desconexi\'on cr\'itica: el m\'odulo presupuestal (\textit{Seguimiento\_PI}) registra los desembolsos financieros devengados, mientras que el sistema de contrataciones (\textit{Proceso\_Seleccion} e Infobras) registra por separado los contratos y el porcentaje de avance f\'isico en campo. Esta falta de conciliaci\'on peri\'odica origina el problema del \textit{descalce financiero-f\'isico}: obras que devengan gran parte de su presupuesto sin registrar un avance f\'isico equivalente, o que acumulan cientos de contratos y adendas durante m\'as de una d\'ecada, desembocando en sobrecostos y obras paralizadas \cite{cgr2024}.
+
+\textbf{Usuario y beneficiarios del proyecto:} Los resultados de este trabajo benefician directamente a tres actores: (1) los equipos de auditor\'ia de la \textbf{Contralor\'ia General de la Rep\'ublica (CGR)} y los \'Organos de Control Institucional (OCI), quienes pasan de revisar manualmente miles de expedientes a contar con un triaje focalizado de obras at\'ipicas; (2) la \textbf{Direcci\'on General de Programaci\'on Multianual de Inversiones (DGPMI - MEF)}, que obtiene tipolog\'ias emp\'iricas para diferenciar el monitoreo presupuestal entre ministerios, regiones y municipios; y (3) las \textbf{Unidades Ejecutoras subnacionales y la ciudadan\'ia}, al visibilizar cuellos de botella contractuales en obras de salud, saneamiento, educaci\'on y transporte.
+
+\textbf{Objetivo del proyecto:} Segmentar de forma no supervisada la cartera activa de proyectos de inversi\'on p\'ublica ($N = 2\,067$ CUI) para caracterizar tipolog\'ias operativas de ejecuci\'on, aislar proyectos at\'ipicos (\textit{outliers}) con alto descalce o fragmentaci\'on contractual y georreferenciar los resultados en un mapa interactivo HTML que oriente la priorizaci\'on de auditor\'ias.
+
+\textbf{Pregunta de an\'alisis:} \textit{?`Es posible identificar tipolog\'ias estructurales de proyectos de inversi\'on p\'ublica y localizar territorialmente perfiles at\'ipicos de descalce financiero-f\'isico mediante t\'ecnicas de clustering no supervisado aplicadas sobre datos transaccionales del MEF?}
+
+\textbf{Aporte del trabajo:} Frente a la supervisi\'on tradicional basada \'unicamente en el monto de la obra, este trabajo aporta: (i) una matriz anal\'itica reproducible a nivel de CUI que integra brecha gasto-avance y carga contractual; (ii) una representaci\'on bidimensional con \textbf{NMF} que evita el aplastamiento visual provocado por megaproyectos extremos en PCA; (iii) la triangulaci\'on de \textbf{$K$-Means ($K = 3$)}, \textbf{Jer\'arquico Ward ($K = 3$)} y \textbf{DBSCAN ($\varepsilon = 1.8$)}, logrando capturar en el $8.42\%$ de ruido de DBSCAN una tasa de alerta cr\'itica ($37.93\%$) que m\'as que triplica al resto de la cartera ($11.04\%$); (iv) un mapa interactivo multicapa en \textbf{Folium (\texttt{mapa\_clusters.html})} para la inspecci\'on territorial; y (v) una regla operativa (\texttt{scaler.transform}, percentil 95 de distancia al centroide y vecindad a puntos n\'ucleo) para evaluar nuevos proyectos sin reentrenar los modelos.
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=0.96\textwidth]{figuras/pipeline_desarrollo.png}
+\caption{Pipeline de desarrollo del proyecto en dos etapas (construcci\'on de la matriz anal\'itica y selecci\'on del modelo con georreferenciaci\'on en HTML), acompa\~nado de ejemplos reales de proyectos y regiones en cada etapa clave.}
+\label{fig:pipeline}
+\end{figure*}
+
+\section{Datos y Representaci\'on Final}
+
+Consolidamos una matriz anal\'itica reproducible disponible en nuestro repositorio institucional de GitHub\footnote{Repositorio final reproducible: \url{https://github.com/RomyUP1411/data-mining-project}}, integrando los registros de \textit{Seguimiento\_PI} ($696\,688$ filas crudas) y \textit{Proceso\_Seleccion} ($5\,672\,274$ filas crudas) junto con los shapefiles departamentales del Instituto Geogr\'afico Nacional (IGN). Tras depurar c\'odigos presupuestales gen\'ericos y realizar el cruce relacional uno a uno por proyecto, definimos la unidad de an\'alisis como \textbf{una fila = un proyecto de inversi\'on p\'ublica \'unico (CUI)} en ejecuci\'on activa ($N = 2\,067$ proyectos).
+
+La representaci\'on final que ingresa al c\'alculo de distancias consta de 12 atributos agrupados en cuatro dimensiones:
+\begin{enumerate}
+    \item \textbf{Descalce y ejecuci\'on operativa:} \texttt{pct\_ejecucion\_financiera}, \texttt{avance\_fisico\_pct} y \texttt{brecha\_gasto\_avance} ($\%$ ejecuci\'on financiera $-$ $\%$ avance f\'isico).
+    \item \textbf{Magnitud presupuestal:} \texttt{costo\_inversion}, \texttt{gasto\_total} y \texttt{gasto\_anual\_promedio}.
+    \item \textbf{Temporalidad y contrataci\'on:} \texttt{tiempo\_maduracion\_anios}, \texttt{n\_registros\_presupuesto}, \texttt{n\_contratos} y \texttt{tamano\_inversion\_ord} (escala ordinal de $0$ a $3$).
+    \item \textbf{Gobernanza (One-Hot):} \texttt{gob\_GOBIERNOS LOCALES} y \texttt{gob\_GOBIERNOS REGIONALES} (con Gobierno Nacional como categor\'ia base).
+\end{enumerate}
+
+Excluimos los identificadores (\texttt{codigo\_proyecto}, \texttt{nombre\_proyecto}), la regi\'on (\texttt{departamento}, reservada para la uni\'on espacial) y la variable binaria \texttt{flag\_gasto\_adelantado} ($1$ si brecha $> 15\%$, $0$ en caso contrario), la cual se emplea \'unicamente al final para evaluar la utilidad de negocio de cada grupo. Dado que los algoritmos utilizados operan sobre distancias euclidianas, estandarizamos los 12 atributos con \textit{StandardScaler} ($\mu = 0, \sigma = 1$).
+
+\section{Metodolog\'ia}
+
+La Fig.~\ref{fig:pipeline} ilustra nuestro pipeline de desarrollo completo junto con ejemplos reales de proyectos en cada etapa clave. La metodolog\'ia articula cuatro componentes t\'ecnicos:
+
+\textbf{1. Visualizaci\'on bidimensional mediante NMF:} La presencia de megaproyectos multimillonarios (como la L\'inea 2 del Metro, con S/ $12\,075.4$ millones) provoca que en una proyecci\'on lineal como PCA dicha observaci\'on se sit\'ue a m\'as de 40 desviaciones est\'andar, comprimiendo a los otros $2\,066$ proyectos en una esquina del gr\'afico. Para superar esta limitaci\'on visual, escalamos los atributos al rango $[0, 1]$ con \textit{MinMaxScaler} ($X_{\text{pos}}$) y aplicamos \textbf{Factorizaci\'on de Matrices No Negativas (NMF)} ($X_{\text{pos}} \approx WH$, con $W, H \ge 0$) en $k = 2$ factores (\texttt{NMF1}: escala, maduraci\'on y gesti\'on regional; \texttt{NMF2}: gesti\'on local municipal y avance f\'isico) \cite{pedregosa2011}. NMF se utiliza exclusivamente para visualizar en 2D, mientras que el clustering se entrena sobre la matriz estandarizada $X_{\text{std}}$.
+
+\textbf{2. Segmentaci\'on Particional y Jer\'arquica ($K$-Means y Ward):} Aplicamos \textbf{$K$-Means} \cite{macqueen1967} para obtener los arquetipos operativos centrales de la cartera minimizando la inercia intracluster, y lo contrastamos con el agrupamiento jer\'arquico aglomerativo mediante el m\'etodo de \textbf{Ward} \cite{ward1963}, que une en cada paso el par de clusters que genera el menor incremento en la varianza interna total.
+
+\textbf{3. Detecci\'on de Proyectos At\'ipicos por Densidad (DBSCAN):} Implementamos \textbf{DBSCAN} \cite{ester1996}, que agrupa puntos n\'ucleos con al menos $\text{MinPts}$ vecinos dentro de un radio $\varepsilon$ y etiqueta de forma natural a los proyectos aislados en el espacio de 12 dimensiones como \textbf{ruido ($-1$)}.
+
+\textbf{4. Uni\'on Espacial y Mapa HTML Interactivo en Folium:} Homologamos la columna \texttt{departamento} con el c\'odigo y nombre oficial del shapefile del IGN (\texttt{ADM1\_ES}), reproyectamos a coordenadas m\'etricas UTM Zona 18S (\texttt{EPSG:32718}) para calcular \'areas en $\text{km}^2$ y tasas por cada $10\,000\text{ km}^2$, y desplegamos en \textbf{Folium} el archivo interactivo \texttt{mapa\_clusters.html} con selector de capas (\texttt{LayerControl}), pol\'igonos coropl\'eticos y marcadores circulares con \textit{popups} de auditor\'ia.
+
+\begin{table}[!t]
+\centering
+\caption{Comparaci\'on Experimental de Configuraciones Evaluadas}
+\label{tab:experimentos}
+\scriptsize
+\begin{tabular}{@{}llcc@{}}
+\toprule
+\textbf{M\'etodo} & \textbf{Configuraci\'on} & \textbf{Criterio / M\'etrica} & \textbf{Resultado} \\
+\midrule
+$K$-Means & $K = 2$ & Silueta ($\uparrow$) / DB ($\downarrow$) / $\Delta$ Alerta & $0.230$ / $1.780$ / $0.011$ \\
+\textbf{$K$-Means} & \textbf{$K = 3$ (Seleccionado)} & \textbf{Silueta ($\uparrow$) / DB ($\downarrow$) / $\Delta$ Alerta} & \textbf{$0.231$ / $1.191$ / $0.141$} \\
+$K$-Means & $K = 4$ & Silueta ($\uparrow$) / DB ($\downarrow$) / $\Delta$ Alerta & $0.203$ / $1.441$ / $0.147$ \\
+$K$-Means & $K = 5$ & Silueta ($\uparrow$) / DB ($\downarrow$) / $\Delta$ Alerta & $0.214$ / $1.341$ / $1.000$ \\
+$K$-Means & $K = 6$ & Silueta ($\uparrow$) / DB ($\downarrow$) / $\Delta$ Alerta & $0.215$ / $1.236$ / $1.000$ \\
+\midrule
+DBSCAN & $\varepsilon = 1.5, \text{MinPts} = 24$ & Clusters densos / $\%$ Ruido & $3$ / $14.08\%$ ($291$) \\
+\textbf{DBSCAN} & \textbf{$\varepsilon = 1.8, \text{MinPts} = 24$} & \textbf{Clusters densos / $\%$ Ruido} & \textbf{$3$ / $8.42\%$ ($174$)} \\
+DBSCAN & $\varepsilon = 2.0, \text{MinPts} = 24$ & Clusters densos / $\%$ Ruido & $3$ / $6.34\%$ ($131$) \\
+DBSCAN & $\varepsilon = 2.2, \text{MinPts} = 24$ & Clusters densos / $\%$ Ruido & $2$ / $5.42\%$ ($112$) \\
+\midrule
+Jer\'arquico & Single / Complete / Average ($K=3$) & Distribuci\'on de tama\~nos & $2063 / 3 / 1$ \\
+\textbf{Jer\'arquico} & \textbf{Ward ($K = 3$)} & \textbf{Distribuci\'on de tama\~nos} & \textbf{$1522 / 544 / 1$} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Dise\~no Experimental}
+
+Evaluamos sistem\'aticamente los hiperpar\'ametros de cada t\'ecnica utilizando m\'etricas internas y criterios de negocio (Tabla~\ref{tab:experimentos}):
+\begin{itemize}
+    \item \textbf{$K$-Means ($K \in [2, 8]$):} Con inicializaci\'on \texttt{k-means++} y 10 reinicios aleatorios, evaluamos la \textbf{inercia} (buscando el codo), el \textbf{coeficiente de Silhouette} (entre $-1$ y $1$, donde \textbf{m\'as alto es mejor}), el \textbf{\'indice de Davies-Bouldin} ($\ge 0$, donde \textbf{m\'as bajo es mejor}), el tama\~no del segmento m\'as peque\~no y la diferencia en proporci\'on de alertas entre segmentos ($\Delta\text{Alerta}$).
+    \item \textbf{DBSCAN:} Fijamos $\text{MinPts} = 2 \times 12 = 24$, ordenamos la distancia al vecino $k = 24$ para ubicar la rodilla de la curva y probamos $\varepsilon \in \{1.2, 1.5, 1.8, 2.0, 2.2, 2.5\}$.
+    \item \textbf{Jer\'arquico ($K = 3$):} Comparamos los criterios de enlace \texttt{single}, \texttt{complete}, \texttt{average} y \texttt{ward}, verificando la resistencia al encadenamiento (\textit{chaining}).
+\end{itemize}
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{figuras/codo_kmeans.png}
+\caption{Evaluaci\'on de $K$-Means con $K$ creciente: Inercia (codo en $K = 3$), Silhouette (m\'aximo en $K = 3$) y Davies-Bouldin (m\'inimo en $K = 3$).}
+\label{fig:kmeans_eval}
+\end{figure}
+
+\begin{figure}[!t]
+\centering
+\includegraphics[width=\columnwidth]{figuras/dbscan_ward.png}
+\caption{Izquierda: curva de $k$-distancias ($k = 24$) con corte en $\varepsilon = 1.8$. Derecha: dendrograma de Ward ($n = 50$) con corte en $K = 3$ ($\text{distancia} = 8.5$).}
+\label{fig:dbscan_ward}
+\end{figure}
+
+\section{Resultados}
+
+\subsection{Selecci\'on de $K = 3$ y Perfilamiento de Segmentos}
+
+La Fig.~\ref{fig:kmeans_eval} y la Tabla~\ref{tab:experimentos} demuestran que las tres m\'etricas internas convergen de manera exacta en $K = 3$:
+\begin{enumerate}
+    \item La \textbf{inercia} reduce $4\,092.6$ unidades en $K = 2$ y $4\,083.3$ unidades ($-19.72\%$) en $K = 3$, mientras que en $K = 4$ la reducci\'on cae a menos de la mitad ($1\,734.6$ unidades, $-10.43\%$), fijando el codo en $K = 3$.
+    \item El \textbf{Silhouette} (m\'as alto es mejor) \textbf{alcanza su m\'aximo global en $K = 3$ ($0.231$)}. En cambio, en $K = 4$ desciende a su m\'inimo absoluto ($0.203$), demostrando que a\~nadir un cuarto grupo fragmenta artificialmente la estructura. En $K = 2$, aunque el Silhouette es $0.230$, la diferencia de alerta ($\Delta\text{Alerta} = 0.011$) no discrimina perfiles.
+    \item El \textbf{Davies-Bouldin} (m\'as bajo es mejor) \textbf{alcanza su m\'inimo global en $K = 3$ ($1.191$)} frente al deterioro en $K = 2$ ($1.780$) y $K = 4$ ($1.441$).
+\end{enumerate}
+
+La Tabla~\ref{tab:perfiles} presenta el perfil de los 3 segmentos en unidades originales: el \textbf{Segmento 1} ($n = 1\,174$, $56.80\%$) agrupa a las obras locales municipales (S/ $5.54$M promedio, $9.57$ a\~nos de maduraci\'on y $80.53\%$ de avance f\'isico), exhibiendo una silueta media de $0.341$ con \textbf{cero proyectos negativos} ($s(i) < 0$). El \textbf{Segmento 0} ($n = 892$, $43.15\%$) re\'une a las obras regionales ($57.6\%$) y nacionales ($36.4\%$) de mayor escala (S/ $74.06$M promedio) y alta complejidad contractual ($229.7$ contratos por obra). El \textbf{Segmento 2} ($n = 1$, $0.05\%$) a\'isla a la L\'inea 2 del Metro de Lima y Callao (S/ $12\,075.45$M). En el clustering jer\'arquico (Fig.~\ref{fig:dbscan_ward}, derecha), el corte de Ward en $K = 3$ (distancia $8.5$) atraviesa los tramos verticales m\'as largos y produce grupos equilibrados ($1\,522 / 544 / 1$), mientras que \texttt{single}, \texttt{complete} y \texttt{average} colapsan en $2\,063 / 3 / 1$ por encadenamiento.
+
+\begin{table*}[!t]
+\centering
+\caption{Perfil Anal\'itico Promedio de los Segmentos Finales ($K$-Means, $K = 3$) y de los Outliers de DBSCAN}
+\label{tab:perfiles}
+\scriptsize
+\begin{tabular}{@{}lrrrrrrrrrr@{}}
+\toprule
+\textbf{Segmento / Grupo} & \textbf{$N$} & \textbf{Pje.} & \textbf{Silueta Media} & \textbf{Costo Inv. (S/.)} & \textbf{Ejec. Fin. (\%)} & \textbf{Avance F\'is. (\%)} & \textbf{Brecha (\%)} & \textbf{Maduraci\'on (a\~nos)} & \textbf{N$^\circ$ Contratos} & \textbf{Con Alerta (\%)} \\
+\midrule
+Segmento 0 (Regional / Nacional Complejo) & $892$ & $43.15\%$ & $0.087$ & $74\,055\,810$ & $42.39\%$ & $70.33\%$ & $-27.95\%$ & $12.69$ & $229.69$ & $13.12\%$ \\
+Segmento 1 (Local Municipal Compacto) & $1\,174$ & $56.80\%$ & $0.341$ & $5\,537\,502$ & $61.52\%$ & $80.53\%$ & $-19.01\%$ & $9.57$ & $120.96$ & $14.05\%$ \\
+Segmento 2 (Megaproyecto At\'ipico / Metro) & $1$ & $0.05\%$ & $0.000$ & $12\,075\,449\,652$ & $15.22\%$ & $50.42\%$ & $-35.20\%$ & $13.00$ & $72.00$ & $0.00\%$ \\
+\midrule
+Proyectos en Clusters Densos DBSCAN ($0, 1, 2$) & $1\,893$ & $91.58\%$ & -- & $20\,919\,040$ & $50.26\%$ & $76.87\%$ & $-26.61\%$ & $10.80$ & $135.18$ & $11.04\%$ \\
+\textbf{Outliers / Ruido DBSCAN ($\text{etiqueta} = -1$)} & \textbf{$174$} & \textbf{$8.42\%$} & -- & \textbf{$258\,819\,100$} & \textbf{$85.73\%$} & \textbf{$67.91\%$} & \textbf{$+17.82\%$} & \textbf{$12.25$} & \textbf{$523.36$} & \textbf{$37.93\%$} \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=0.96\textwidth]{figuras/nmf_comparacion.png}
+\caption{Comparaci\'on de las configuraciones finales de $K$-Means ($K = 3$), Jer\'arquico Ward ($K = 3$) y DBSCAN ($\varepsilon = 1.8, \text{MinPts} = 24$) proyectadas en el plano de factores no negativos de NMF (\texttt{NMF1} vs. \texttt{NMF2}).}
+\label{fig:nmf_comp}
+\end{figure*}
+
+\subsection{Outliers de DBSCAN y Mapa HTML en Folium}
+
+En DBSCAN (Fig.~\ref{fig:dbscan_ward}, izquierda), el corte en $\varepsilon = 1.8$ forma 3 grupos densos y separa a 174 proyectos ($8.42\%$) como ruido (outliers). Como revela la Tabla~\ref{tab:perfiles}, estos 174 proyectos at\'ipicos presentan un costo medio 12 veces mayor (S/ $258.8$M vs. S/ $20.9$M), un promedio de $523.4$ contratos por obra, una brecha promedio positiva de $+17.82\%$ y un $37.93\%$ de proyectos con alerta cr\'itica de gasto adelantado (frente a solo $11.04\%$ en los grupos densos). En el plano NMF (Fig.~\ref{fig:nmf_comp}), se aprecia c\'omo \texttt{NMF2} separa n\'itidamente al bloque municipal superior y \texttt{NMF1} despliega hacia la derecha a las obras regionales complejas y a los outliers de DBSCAN.
+
+Al integrar estos resultados en el mapa interactivo \texttt{mapa\_clusters.html} (Fig.~\ref{fig:mapa_html}), identificamos que el Segmento 0 predomina en la selva y sierra central, mientras que el Segmento 1 predomina en el sur andino y costa norte (Fig.~\ref{fig:mapa_html}A). Respecto a los 174 outliers de DBSCAN (Fig.~\ref{fig:mapa_html}B), \textbf{Lima} lidera en volumen absoluto ($74$ outliers, $13.1\%$ de su cartera y S/ $31\,391.7$M) y \textbf{Cusco} registra $13$ outliers (S/ $2\,157.2$M, incluyendo el Aeropuerto de Chinchero); sin embargo, en proporci\'on relativa destaca \textbf{Ucayali con el $41.38\%$ de toda su cartera en condici\'on de ruido} ($12$ de $29$ obras, con un promedio de $2\,431$ contratos por obra, como el Hospital Regional de Pucallpa), seguida por \textbf{Pasco ($23.81\%$)} y \textbf{Huancavelica ($14.63\%$)}.
+
+Finalmente, para evaluar proyectos nuevos sin reajustar los modelos (aplicando \texttt{scaler.transform}), determinamos el umbral del percentil 95 de distancia al centroide en $K$-Means en $4.24$ y la regla de vecindad a los puntos n\'ucleo en DBSCAN ($d \le 1.8$), permitiendo detectar de inmediato nuevas obras con sobregasto o sobrecontrataci\'on para revisi\'on manual.
+
+\begin{figure*}[!t]
+\centering
+\includegraphics[width=0.95\textwidth]{figuras/mapa_html_captura.png}
+\caption{Representaci\'on cartogr\'afica y captura del mapa interactivo \texttt{mapa\_clusters.html} generado con GeoPandas y Folium: (A) Segmento $K$-Means predominante y volumen de obras por regi\'on; (B) Porcentaje de la cartera regional clasificada como ruido en DBSCAN y \textit{popups} de auditor\'ia.}
+\label{fig:mapa_html}
+\end{figure*}
+
+\section{Discusi\'on}
+
+Los resultados obtenidos responden afirmativamente a nuestra pregunta de an\'alisis y aportan valor directo a los usuarios del sistema: mientras $K$-Means y Ward establecen la tipolog\'ia estructural de la cartera en 3 niveles operativos, DBSCAN cumple la funci\'on de detector no supervisado de anomal\'ias. Para un auditor de la Contralor\'ia o analista de la DGPMI-MEF, revisar manualmente $2\,067$ obras es inviable; en cambio, focalizar la inspecci\'on en los 174 outliers de DBSCAN permite capturar una subpoblaci\'on donde casi 4 de cada 10 obras ($37.93\%$) sufren descalce cr\'itico de gasto adelantado o hipertrofia contractual extrema.
+
+\textbf{Limitaciones del estudio:}
+\begin{enumerate}
+    \item \textbf{De los datos:} La matriz registra la ubicaci\'on a nivel departamental (\texttt{ADM1\_ES}), por lo que los marcadores en Folium se ubican en el punto representativo regional y no en la coordenada GPS individual de cada obra. Adem\'as, el avance f\'isico depende de la puntualidad de registro de las entidades en Infobras.
+    \item \textbf{De la t\'ecnica:} $K$-Means asigna obligatoriamente toda obra a un grupo, por lo que requiere combinarse con el umbral de distancia al centroide ($4.24$) o con DBSCAN para no camuflar casos at\'ipicos. A su vez, el uso de un $\varepsilon$ \'unico ($1.8$) en DBSCAN no distingue variaciones locales de densidad entre departamentos.
+    \item \textbf{De la evaluaci\'on:} El Silhouette global de $0.231$ y los $254$ valores negativos en el Segmento 0 indican que entre las obras medianas municipales y regionales existe una frontera continua; por ello, los segmentos deben interpretarse como perfiles operativos de tendencia y no como compartimentos estancos.
+\end{enumerate}
+
+\section{Conclusiones}
+
+\begin{enumerate}
+    \item \textbf{Estructura de la cartera:} Las m\'etricas de inercia, Silhouette ($0.231$) y Davies-Bouldin ($1.191$) demuestran que la cartera activa de Invierte.pe se organiza en $K = 3$ segmentos consistentes entre $K$-Means y Ward: obras locales municipales compactas ($56.8\%$, silueta media $0.341$ sin negativos), obras regionales y nacionales de alta complejidad contractual ($43.15\%$, $229.7$ contratos promedio) y el megaproyecto singular de la L\'inea 2 del Metro ($0.05\%$).
+    \item \textbf{Representaci\'on visual con NMF:} La reducci\'on mediante NMF en dos factores no negativos (\texttt{NMF1} y \texttt{NMF2}) evita el aplastamiento de escala ocasionado por los megaproyectos en PCA y separa con claridad la dimensi\'on de escala/maduraci\'on regional frente a la ejecuci\'on local municipal.
+    \item \textbf{Detecci\'on y georreferenciaci\'on de anomal\'ias:} DBSCAN ($\varepsilon = 1.8, \text{MinPts} = 24$) a\'isla 174 proyectos ($8.42\%$) con $37.93\%$ de incidencia de descalce cr\'itico y $523.4$ contratos en promedio. Su despliegue en \texttt{mapa\_clusters.html} evidencia que el riesgo combina una alta concentraci\'on presupuestal en Lima (S/ $31\,391.7$M) con una severa patolog\'ia de fragmentaci\'on contractual en regiones como Ucayali ($41.4\%$ de ruido) y Pasco ($23.8\%$).
+\end{enumerate}
+
+\textbf{Recomendaciones y trabajo futuro:} Recomendamos a la Contralor\'ia General de la Rep\'ublica y al MEF (1) activar control concurrente autom\'atico sobre los proyectos que DBSCAN marque como ruido o que superen el umbral de distancia de $4.24$ al evaluarse con \texttt{scaler.transform}, (2) auditar el fraccionamiento contractual en las unidades ejecutoras de Ucayali, Pasco y Huancavelica, y (3) exigir conciliaci\'on trimestral entre devengado SIAF y avance f\'isico Infobras para las obras del Segmento 0. Como trabajo futuro, proponemos incorporar las coordenadas GPS por obra desde Infobras para aplicar DBSCAN espacial en metros, integrar series temporales mensuales de desembolsos y extraer reglas de asociaci\'on sobre las causales de adendas en el SEACE.
+
+\begin{thebibliography}{00}
+\bibitem{mef2024} Ministerio de Econom\'ia y Finanzas del Per\'u (MEF), ``Sistema Nacional de Programaci\'on Multianual y Gesti\'on de Inversiones (Invierte.pe),'' Portal de Datos Abiertos (\textit{Seguimiento\_PI} y \textit{Proceso\_Seleccion}), Lima, Per\'u, 2024.
+\bibitem{cgr2024} Contralor\'ia General de la Rep\'ublica del Per\'u, ``Reporte de Obras Paralizadas en el Territorio Nacional,'' Gerencia de Control de Megaproyectos, Lima, Per\'u, 2024.
+\bibitem{ester1996} M. Ester, H.-P. Kriegel, J. Sander, y X. Xu, ``A density-based algorithm for discovering clusters in large spatial databases with noise,'' en \textit{Proc. 2nd ACM KDD}, pp. 226--231, 1996.
+\bibitem{macqueen1967} J. MacQueen, ``Some methods for classification and analysis of multivariate observations,'' en \textit{Proc. 5th Berkeley Symp. Math. Statist. Prob.}, vol. 1, pp. 281--297, 1967.
+\bibitem{ward1963} J. H. Ward Jr., ``Hierarchical grouping to optimize an objective function,'' \textit{J. Amer. Statist. Assoc.}, vol. 58, no. 301, pp. 236--244, 1963.
+\bibitem{pedregosa2011} F. Pedregosa \textit{et al.}, ``Scikit-learn: Machine learning in Python,'' \textit{J. Mach. Learn. Res.}, vol. 12, pp. 2825--2830, 2011.
+\end{thebibliography}
+
+\end{document}
